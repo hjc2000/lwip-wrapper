@@ -17,7 +17,7 @@ namespace lwip
 	private:
 		std::unique_ptr<netif> _wrapped_obj{new netif{}};
 		bsp::IEthernetPort *_ethernet_port = nullptr;
-		std::string _name = "lwip-wrapper";
+		std::string _name;
 
 		/// @brief 缓存数据。
 		struct Cache;

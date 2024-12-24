@@ -37,8 +37,8 @@ struct lwip::NetifWrapper::Cache
 void lwip::NetifWrapper::InitializationCallbackFunc()
 {
 	_wrapped_obj->hostname = "lwip-wrapper";
-	_wrapped_obj->name[0] = 's';
-	_wrapped_obj->name[1] = 't';
+	_wrapped_obj->name[0] = 'i';
+	_wrapped_obj->name[1] = 'p';
 
 	// 设置 MAC 地址长度，为 6 个字节
 	_wrapped_obj->hwaddr_len = ETHARP_HWADDR_LEN;

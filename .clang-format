@@ -42,6 +42,8 @@ QualifierAlignment: Right
 # 访问修饰符后空行
 EmptyLineAfterAccessModifier: Leave
 
+UseTab: ForContinuationAndIndentation
+
 BraceWrapping:
  IndentBraces: false
  AfterClass: true

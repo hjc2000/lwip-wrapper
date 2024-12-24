@@ -7,9 +7,7 @@
 namespace lwip
 {
 	/// @brief 网卡插槽。
-	/// @note 其实就是个字典，用来储存 lwip::NetifWrapper 对象。
-	class NetifSlot :
-		public base::IDictionary<std::string, std::shared_ptr<lwip::NetifWrapper>>
+	class NetifSlot
 	{
 	private:
 		NetifSlot() = default;
@@ -21,40 +19,33 @@ namespace lwip
 	public:
 		static_function NetifSlot &Instance();
 
-		/// @brief 获取元素个数。
+		/// @brief 插入一张网卡。
+		/// @param o
+		void PlugIn(std::shared_ptr<lwip::NetifWrapper> const &o);
+
+		/// @brief 移除一张网卡。
+		/// @param name 网卡名称。
+		/// @return 移除成功返回 true，元素不存在返回 false。
+		bool Remove(std::string const &name)
+		{
+			return _netif_dic.Remove(name);
+		}
+
+		/// @brief 查找一张网卡。找不到会返回空指针。
+		/// @param name 网卡名称。
 		/// @return
-		int Count() const override
+		std::shared_ptr<lwip::NetifWrapper> Find(std::string const &name);
+
+		/// @brief 获取网卡个数。
+		/// @return
+		int Count() const
 		{
 			return _netif_dic.Count();
 		}
 
-		/// @brief 查找元素。
-		/// @param key 键
-		/// @return 指针。找到了返回元素的指针，找不到返回空指针。
-		std::shared_ptr<lwip::NetifWrapper> *Find(std::string const &key) override
-		{
-			return _netif_dic.Find(key);
-		}
-
-		/// @brief 移除一个元素。
-		/// @param key 键
-		/// @return 移除成功返回 true，元素不存在返回 false。
-		bool Remove(std::string const &key) override
-		{
-			return _netif_dic.Remove(key);
-		}
-
-		/// @brief 设置一个元素。本来不存在，会添加；本来就存在了，会覆盖。
-		/// @param key
-		/// @param item
-		void Set(std::string const &key, std::shared_ptr<lwip::NetifWrapper> const &item) override
-		{
-			_netif_dic.Set(key, item);
-		}
-
 		/// @brief 获取迭代器
 		/// @return
-		std::shared_ptr<base::IEnumerator<std::pair<std::string const, std::shared_ptr<lwip::NetifWrapper>>>> GetEnumerator() override
+		std::shared_ptr<base::IEnumerator<std::pair<std::string const, std::shared_ptr<lwip::NetifWrapper>>>> GetEnumerator()
 		{
 			return _netif_dic.GetEnumerator();
 		}

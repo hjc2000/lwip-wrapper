@@ -262,6 +262,11 @@ lwip::NetifWrapper::~NetifWrapper()
 	netif_remove(_wrapped_obj.get());
 }
 
+std::string lwip::NetifWrapper::Name() const
+{
+	return _wrapped_obj->hostname;
+}
+
 #pragma region Open
 
 void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,

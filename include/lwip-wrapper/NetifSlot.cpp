@@ -1,5 +1,6 @@
 #include "NetifSlot.h"
 #include <base/di/SingletonGetter.h>
+#include <base/string/define.h>
 #include <bsp-interface/di/interrupt.h>
 
 lwip::NetifSlot &lwip::NetifSlot::Instance()
@@ -26,4 +27,25 @@ lwip::NetifSlot &lwip::NetifSlot::Instance()
 
 	Getter g;
 	return g.Instance();
+}
+
+void lwip::NetifSlot::PlugIn(std::shared_ptr<lwip::NetifWrapper> const &o)
+{
+	if (o == nullptr)
+	{
+		throw std::invalid_argument{std::string{CODE_POS_STR} + "禁止传入空指针。"};
+	}
+
+	_netif_dic.Add(o->Name(), o);
+}
+
+std::shared_ptr<lwip::NetifWrapper> lwip::NetifSlot::Find(std::string const &key)
+{
+	std::shared_ptr<lwip::NetifWrapper> *pp = _netif_dic.Find(key);
+	if (pp == nullptr)
+	{
+		return nullptr;
+	}
+
+	return *pp;
 }

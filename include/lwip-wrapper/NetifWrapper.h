@@ -59,6 +59,8 @@ namespace lwip
 		NetifWrapper();
 		~NetifWrapper();
 
+		std::string Name() const;
+
 #pragma region Open
 		/// @brief 打开网卡，打开后会向 lwip 注册本网卡，然后就可以被 lwip 使用了。
 		/// @param ethernet_port

@@ -12,20 +12,11 @@
 struct lwip::NetifWrapper::Cache
 {
 	/// @brief 本机IP地址
-	base::IPAddress _ip_address{
-		std::endian::big,
-		base::Array<uint8_t, 4>{192, 168, 1, 30},
-	};
+	base::IPAddress _ip_address{"192.168.1.30"};
 
-	base::IPAddress _netmask{
-		std::endian::big,
-		base::Array<uint8_t, 4>{255, 255, 255, 0},
-	};
+	base::IPAddress _netmask{"255.255.255.0"};
 
-	base::IPAddress _gateway{
-		std::endian::big,
-		base::Array<uint8_t, 4>{192, 168, 1, 1},
-	};
+	base::IPAddress _gateway{"192.168.1.1"};
 
 	/// @brief 本网卡所使用的 MAC 地址。
 	base::Mac _mac{

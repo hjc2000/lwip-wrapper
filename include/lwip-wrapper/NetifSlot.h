@@ -7,6 +7,8 @@
 namespace lwip
 {
 	/// @brief 网卡插槽。
+	/// @note NetifWrapper 打开后就会向 lwip 注册，网卡就可以使用了。但是必须始终保持 NetifWrapper 对象
+	/// 不析构，否则网卡会销毁。如果没法自己保存 NetifWrapper 对象，就把它放到本插槽中。
 	class NetifSlot
 	{
 	private:

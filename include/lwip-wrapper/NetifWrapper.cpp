@@ -5,6 +5,7 @@
 #include <bsp-interface/di/delayer.h>
 #include <bsp-interface/di/task.h>
 #include <lwip-wrapper/lwip_convert.h>
+#include <lwip-wrapper/NetifSlot.h>
 #include <lwip/dhcp.h>
 #include <lwip/etharp.h>
 #include <lwip/tcpip.h>

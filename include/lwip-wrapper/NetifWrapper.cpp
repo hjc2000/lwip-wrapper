@@ -265,7 +265,7 @@ lwip::NetifWrapper::~NetifWrapper()
 
 std::string lwip::NetifWrapper::Name() const
 {
-	return _wrapped_obj->hostname;
+	return _name;
 }
 
 #pragma region Open

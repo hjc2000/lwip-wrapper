@@ -36,7 +36,14 @@ void lwip::NetifSlot::PlugIn(std::shared_ptr<lwip::NetifWrapper> const &o)
 		throw std::invalid_argument{std::string{CODE_POS_STR} + "禁止传入空指针。"};
 	}
 
-	_netif_dic.Add(o->Name(), o);
+	try
+	{
+		_netif_dic.Add(o->Name(), o);
+	}
+	catch (std::exception const &e)
+	{
+		throw std::runtime_error{std::string{CODE_POS_STR} + e.what()};
+	}
 }
 
 std::shared_ptr<lwip::NetifWrapper> lwip::NetifSlot::Find(std::string const &key)

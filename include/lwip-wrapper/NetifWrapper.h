@@ -17,6 +17,7 @@ namespace lwip
 	private:
 		std::unique_ptr<netif> _wrapped_obj{new netif{}};
 		bsp::IEthernetPort *_ethernet_port = nullptr;
+		std::string _name = "lwip-wrapper";
 
 		/// @brief 缓存数据。
 		struct Cache;
@@ -56,22 +57,20 @@ namespace lwip
 
 	public:
 		/// @brief 构造函数。
-		NetifWrapper();
+		NetifWrapper(std::string const &name);
 		~NetifWrapper();
 
 		std::string Name() const;
 
 #pragma region Open
 		/// @brief 打开网卡，打开后会向 lwip 注册本网卡，然后就可以被 lwip 使用了。
-		/// @param name
 		/// @param ethernet_port
 		/// @param mac
 		/// @param ip_address
 		/// @param netmask
 		/// @param gateway
 		/// @param mtu
-		void Open(std::string const &name,
-				  bsp::IEthernetPort *ethernet_port,
+		void Open(bsp::IEthernetPort *ethernet_port,
 				  base::Mac const &mac,
 				  base::IPAddress const &ip_address,
 				  base::IPAddress const &netmask,
@@ -79,16 +78,14 @@ namespace lwip
 				  int32_t mtu);
 
 		/// @brief 打开网卡，打开后会向 lwip 注册本网卡，然后就可以被 lwip 使用了。
-		/// @param name
 		/// @param ethernet_port
 		/// @param mtu
-		void Open(std::string const &name, bsp::IEthernetPort *ethernet_port, int32_t mtu);
+		void Open(bsp::IEthernetPort *ethernet_port, int32_t mtu);
 
 		/// @brief 打开网卡，打开后会向 lwip 注册本网卡，然后就可以被 lwip 使用了。
 		/// @note 仅仅传一个 bsp::IEthernetPort 进来，其他的参数全部默认。
-		/// @param name
 		/// @param ethernet_port
-		void Open(std::string const &name, bsp::IEthernetPort *ethernet_port);
+		void Open(bsp::IEthernetPort *ethernet_port);
 #pragma endregion
 
 #pragma region 地址

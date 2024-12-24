@@ -56,3 +56,16 @@ std::shared_ptr<lwip::NetifWrapper> lwip::NetifSlot::Find(std::string const &key
 
 	return *pp;
 }
+
+std::shared_ptr<lwip::NetifWrapper> lwip::NetifSlot::FindDefaultNetif() const
+{
+	for (std::pair<std::string const, std::shared_ptr<lwip::NetifWrapper>> const &pair : _netif_dic)
+	{
+		if (pair.second->IsDefaultNetInterface())
+		{
+			return pair.second;
+		}
+	}
+
+	return nullptr;
+}

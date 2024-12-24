@@ -51,5 +51,10 @@ namespace lwip
 		{
 			return _netif_dic.GetEnumerator();
 		}
+
+		/// @brief 在已插入插槽的网卡中查找作为 lwip 默认网卡的网卡。有可能找不到。
+		/// 找不到有可能是 lwip 没有默认网卡，也可能是默认网卡没有插入插槽中。
+		/// @return 找不到会返回空指针。
+		std::shared_ptr<lwip::NetifWrapper> FindDefaultNetif() const;
 	};
 } // namespace lwip

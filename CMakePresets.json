@@ -1,0 +1,89 @@
+﻿{
+	"version": 3,
+	"configurePresets": [
+		{
+			"name": "arm-none-eabi-cortex-m3-base",
+			"hidden": true,
+			"generator": "Ninja",
+			"binaryDir": "${sourceDir}/jc_build",
+			"cacheVariables": {
+				"option_install_headers": true,
+				"platform": "arm-none-eabi-cortex-m3",
+				"BUILD_SHARED_LIBS": false,
+				"CMAKE_SYSTEM_PROCESSOR": "arm",
+				"CMAKE_SYSTEM_ARCH": "armv7-m",
+				"CMAKE_SYSTEM_NAME": "Generic",
+				"CMAKE_C_COMPILER": "arm-none-eabi-gcc.exe",
+				"CMAKE_CXX_COMPILER": "arm-none-eabi-g++.exe",
+				"CMAKE_ASM_COMPILER": "arm-none-eabi-gcc.exe",
+				"CMAKE_LINKER": "arm-none-eabi-ld.exe",
+				"CMAKE_OBJCOPY": "arm-none-eabi-objcopy.exe",
+				"CMAKE_SIZE": "arm-none-eabi-size.exe",
+				"CMAKE_STRIP": "arm-none-eabi-ld.exe"
+			},
+			"vendor": {
+				"microsoft.com/VisualStudioSettings/CMake/1.0": {
+					"intelliSenseMode": "linux-gcc-arm"
+				}
+			}
+		},
+		{
+			"name": "arm-none-eabi-cortex-m3-debug",
+			"displayName": "arm-none-eabi-cortex-m3-debug",
+			"inherits": "arm-none-eabi-cortex-m3-base",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			}
+		},
+		{
+			"name": "arm-none-eabi-cortex-m3-release",
+			"displayName": "arm-none-eabi-cortex-m3-release",
+			"inherits": "arm-none-eabi-cortex-m3-base",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release"
+			}
+		},
+		{
+			"name": "arm-none-eabi-cortex-m7-base",
+			"hidden": true,
+			"generator": "Ninja",
+			"binaryDir": "${sourceDir}/jc_build",
+			"cacheVariables": {
+				"option_install_headers": true,
+				"platform": "arm-none-eabi-cortex-m7",
+				"BUILD_SHARED_LIBS": false,
+				"CMAKE_SYSTEM_PROCESSOR": "arm",
+				"CMAKE_SYSTEM_ARCH": "armv7-m",
+				"CMAKE_SYSTEM_NAME": "Generic",
+				"CMAKE_C_COMPILER": "arm-none-eabi-gcc.exe",
+				"CMAKE_CXX_COMPILER": "arm-none-eabi-g++.exe",
+				"CMAKE_ASM_COMPILER": "arm-none-eabi-gcc.exe",
+				"CMAKE_LINKER": "arm-none-eabi-ld.exe",
+				"CMAKE_OBJCOPY": "arm-none-eabi-objcopy.exe",
+				"CMAKE_SIZE": "arm-none-eabi-size.exe",
+				"CMAKE_STRIP": "arm-none-eabi-ld.exe"
+			},
+			"vendor": {
+				"microsoft.com/VisualStudioSettings/CMake/1.0": {
+					"intelliSenseMode": "linux-gcc-arm"
+				}
+			}
+		},
+		{
+			"name": "arm-none-eabi-cortex-m7-debug",
+			"displayName": "arm-none-eabi-cortex-m7-debug",
+			"inherits": "arm-none-eabi-cortex-m7-base",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			}
+		},
+		{
+			"name": "arm-none-eabi-cortex-m7-release",
+			"displayName": "arm-none-eabi-cortex-m7-release",
+			"inherits": "arm-none-eabi-cortex-m7-base",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release"
+			}
+		}
+	]
+}

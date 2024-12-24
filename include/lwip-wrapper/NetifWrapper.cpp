@@ -33,11 +33,13 @@ struct lwip::NetifWrapper::Cache
 	};
 
 	int32_t _mtu = 1500;
+
+	std::string _host_name = "lwip-wrapper";
 };
 
 void lwip::NetifWrapper::InitializationCallbackFunc()
 {
-	_wrapped_obj->hostname = "lwip-wrapper";
+	_wrapped_obj->hostname = _cache->_host_name.c_str();
 	_wrapped_obj->name[0] = 'i';
 	_wrapped_obj->name[1] = 'p';
 
@@ -269,7 +271,8 @@ std::string lwip::NetifWrapper::Name() const
 
 #pragma region Open
 
-void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,
+void lwip::NetifWrapper::Open(std::string const &name,
+							  bsp::IEthernetPort *ethernet_port,
 							  base::Mac const &mac,
 							  base::IPAddress const &ip_address,
 							  base::IPAddress const &netmask,
@@ -282,19 +285,20 @@ void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,
 	_cache->_gateway = gateway;
 
 	// 将参数赋值给字段赋值后，调用参数较少的 Open 重载版本。
-	Open(ethernet_port, mtu);
+	Open(name, ethernet_port, mtu);
 }
 
-void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port, int32_t mtu)
+void lwip::NetifWrapper::Open(std::string const &name, bsp::IEthernetPort *ethernet_port, int32_t mtu)
 {
 	_cache->_mtu = mtu;
 
 	// 将参数赋值给字段赋值后，调用参数较少的 Open 重载版本。
-	Open(ethernet_port);
+	Open(name, ethernet_port);
 }
 
-void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port)
+void lwip::NetifWrapper::Open(std::string const &name, bsp::IEthernetPort *ethernet_port)
 {
+	_cache->_host_name = name;
 	_ethernet_port = ethernet_port;
 	if (_ethernet_port == nullptr)
 	{

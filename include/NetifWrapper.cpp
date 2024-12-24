@@ -36,7 +36,7 @@ struct lwip::NetifWrapper::Cache
 
 void lwip::NetifWrapper::InitializationCallbackFunc()
 {
-	_wrapped_obj->hostname = "stm32h743iit6-lwip";
+	_wrapped_obj->hostname = "lwip-wrapper";
 	_wrapped_obj->name[0] = 's';
 	_wrapped_obj->name[1] = 't';
 

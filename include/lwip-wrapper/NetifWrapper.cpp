@@ -4,10 +4,10 @@
 #include <bsp-interface/di/console.h>
 #include <bsp-interface/di/delayer.h>
 #include <bsp-interface/di/task.h>
+#include <lwip-wrapper/lwip_convert.h>
 #include <lwip/dhcp.h>
 #include <lwip/etharp.h>
 #include <lwip/tcpip.h>
-#include <lwip_convert.h>
 
 struct lwip::NetifWrapper::Cache
 {

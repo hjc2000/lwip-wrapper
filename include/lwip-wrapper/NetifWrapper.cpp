@@ -105,9 +105,9 @@ bool lwip::NetifWrapper::TryDHCP()
 	StartDHCP();
 
 	bool dhcp_result = false;
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 50; i++)
 	{
-		// 如果失败，最多重试 100 次。
+		// 如果失败，最多重试 50 次。
 		dhcp_result = DhcpSuppliedAddress();
 		if (dhcp_result)
 		{
@@ -162,6 +162,7 @@ bool lwip::NetifWrapper::DhcpSuppliedAddress()
 
 void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 {
+	bool dhcp_supplied_address_in_last_loop = false;
 	while (true)
 	{
 		if (_disposed)
@@ -172,7 +173,25 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 		}
 
 		bool is_linked = _ethernet_port->IsLinked();
-		if (is_linked == netif_is_up(_wrapped_obj.get()))
+
+		if (is_linked && IsUp())
+		{
+			bool dhcp_supplied_address = DhcpSuppliedAddress();
+			if (!dhcp_supplied_address_in_last_loop && dhcp_supplied_address)
+			{
+				_cache->_ip_address = IPAddress();
+				_cache->_netmask = Netmask();
+				_cache->_gateway = Gateway();
+				DI_Console().WriteLine("DHCP 成功：");
+				DI_Console().WriteLine("通过 DHCP 获取到 IP 地址：" + _cache->_ip_address.ToString());
+				DI_Console().WriteLine("通过 DHCP 获取到子网掩码：" + _cache->_netmask.ToString());
+				DI_Console().WriteLine("通过 DHCP 获取到的默认网关：" + _cache->_gateway.ToString());
+			}
+
+			dhcp_supplied_address_in_last_loop = dhcp_supplied_address;
+		}
+
+		if (is_linked == IsUp())
 		{
 			DI_Delayer().Delay(std::chrono::milliseconds{100});
 			continue;
@@ -492,4 +511,9 @@ void lwip::NetifWrapper::SetAsDefaultNetInterface()
 bool lwip::NetifWrapper::IsDefaultNetInterface() const
 {
 	return netif_default == _wrapped_obj.get();
+}
+
+bool lwip::NetifWrapper::IsUp() const
+{
+	return netif_is_up(_wrapped_obj.get());
 }

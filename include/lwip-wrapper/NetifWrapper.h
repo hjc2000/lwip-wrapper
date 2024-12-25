@@ -134,5 +134,7 @@ namespace lwip
 		/// @brief 检查本网卡是否是默认网卡。
 		/// @return
 		bool IsDefaultNetInterface() const;
+
+		bool IsUp() const;
 	};
 } // namespace lwip

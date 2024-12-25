@@ -34,20 +34,6 @@ namespace lwip
 		/// @param p
 		void SendPbuf(pbuf *p);
 
-#pragma region DHCP
-		bool TryDHCP();
-
-		/// @brief 启动 DHCP.
-		void StartDHCP();
-
-		/// @brief 停止 DHCP.
-		void StopDHCP();
-
-		/// @brief 检查本次启动 DHCP 后 IP 地址是否被 DHCP 提供了。
-		/// @return 如果 DHCP 提供了 IP 地址，则返回 true, 否则返回 false.
-		bool DhcpSuppliedAddress();
-#pragma endregion
-
 #pragma region 线程函数
 		std::shared_ptr<bsp::IBinarySemaphore> _link_state_detecting_thread_func_exited = DICreate_BinarySemaphore();
 
@@ -126,6 +112,18 @@ namespace lwip
 		/// @brief 将所有地址清 0.
 		/// @note 包括：IP 地址、子网掩码、网关。
 		void ClearAllAddress();
+#pragma endregion
+
+#pragma region DHCP
+		/// @brief 启动 DHCP.
+		void StartDHCP();
+
+		/// @brief 停止 DHCP.
+		void StopDHCP();
+
+		/// @brief 检查本次启动 DHCP 后 IP 地址是否被 DHCP 提供了。
+		/// @return 如果 DHCP 提供了 IP 地址，则返回 true, 否则返回 false.
+		bool DhcpSuppliedAddress();
 #pragma endregion
 
 		/// @brief 设置为默认网卡。

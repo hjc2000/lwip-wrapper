@@ -96,68 +96,6 @@ void lwip::NetifWrapper::SendPbuf(pbuf *p)
 	_ethernet_port->Send(spans);
 }
 
-#pragma region DHCP
-
-bool lwip::NetifWrapper::TryDHCP()
-{
-	DI_Console().WriteLine("开始进行 DHCP.");
-	ClearAllAddress();
-	StartDHCP();
-
-	bool dhcp_result = false;
-	for (int i = 0; i < 50; i++)
-	{
-		// 如果失败，最多重试 50 次。
-		dhcp_result = DhcpSuppliedAddress();
-		if (dhcp_result)
-		{
-			break;
-		}
-
-		DI_Delayer().Delay(std::chrono::milliseconds{100});
-	}
-
-	if (!dhcp_result)
-	{
-		// 使用静态IP地址
-		SetIPAddress(_cache->_ip_address);
-		SetNetmask(_cache->_netmask);
-		SetGateway(_cache->_gateway);
-		DI_Console().WriteLine("DHCP 超时：");
-		DI_Console().WriteLine("使用静态 IP 地址：" + IPAddress().ToString());
-		DI_Console().WriteLine("使用静态子网掩码：" + Netmask().ToString());
-		DI_Console().WriteLine("使用静态网关：" + Gateway().ToString());
-		return false;
-	}
-
-	// DHCP 成功
-	_cache->_ip_address = IPAddress();
-	_cache->_netmask = Netmask();
-	_cache->_gateway = Gateway();
-	DI_Console().WriteLine("DHCP 成功：");
-	DI_Console().WriteLine("通过 DHCP 获取到 IP 地址：" + _cache->_ip_address.ToString());
-	DI_Console().WriteLine("通过 DHCP 获取到子网掩码：" + _cache->_netmask.ToString());
-	DI_Console().WriteLine("通过 DHCP 获取到的默认网关：" + _cache->_gateway.ToString());
-	return true;
-}
-
-void lwip::NetifWrapper::StartDHCP()
-{
-	dhcp_start(_wrapped_obj.get());
-}
-
-void lwip::NetifWrapper::StopDHCP()
-{
-	dhcp_stop(_wrapped_obj.get());
-}
-
-bool lwip::NetifWrapper::DhcpSuppliedAddress()
-{
-	return dhcp_supplied_address(_wrapped_obj.get());
-}
-
-#pragma endregion
-
 #pragma region 线程函数
 
 void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
@@ -174,8 +112,29 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 
 		bool is_linked = _ethernet_port->IsLinked();
 
+		// 检测网线的通断，更新 lwip 的 up 状态。
+		if (is_linked != IsUp())
+		{
+			if (is_linked)
+			{
+				// 开启以太网及虚拟网卡
+				DI_Console().WriteLine("检测到网线插入");
+				_ethernet_port->Restart();
+				netif_set_up(_wrapped_obj.get());
+				netif_set_link_up(_wrapped_obj.get());
+			}
+			else
+			{
+				DI_Console().WriteLine("检测到网线断开。");
+				netif_set_down(_wrapped_obj.get());
+				netif_set_link_down(_wrapped_obj.get());
+			}
+		}
+
+		// 网线已连接，并且 lwip 是 up 状态。
 		if (is_linked && IsUp())
 		{
+			// 检测 DHCP 是否成功，成功了需要打印出通过 DHCP 获取到的地址。
 			bool dhcp_supplied_address = DhcpSuppliedAddress();
 			if (!dhcp_supplied_address_in_last_loop && dhcp_supplied_address)
 			{
@@ -191,31 +150,8 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 			dhcp_supplied_address_in_last_loop = dhcp_supplied_address;
 		}
 
-		if (is_linked == IsUp())
-		{
-			DI_Delayer().Delay(std::chrono::milliseconds{100});
-			continue;
-		}
-
-		// 网线连接了，lwip 没有 up ，或者网线没有连接，lwip 处于 up 状态。
-		if (is_linked)
-		{
-			// 开启以太网及虚拟网卡
-			DI_Console().WriteLine("检测到网线插入");
-			_ethernet_port->Restart();
-			netif_set_up(_wrapped_obj.get());
-			netif_set_link_up(_wrapped_obj.get());
-			TryDHCP();
-		}
-		else
-		{
-			StopDHCP();
-
-			/* LWIP_DHCP */
-			DI_Console().WriteLine("检测到网线断开。");
-			netif_set_down(_wrapped_obj.get());
-			netif_set_link_down(_wrapped_obj.get());
-		}
+		// 延时。检测链路状态不需要那么快。
+		DI_Delayer().Delay(std::chrono::milliseconds{100});
 	}
 }
 
@@ -499,6 +435,25 @@ void lwip::NetifWrapper::ClearAllAddress()
 				   &_wrapped_obj->ip_addr,
 				   &_wrapped_obj->netmask,
 				   &_wrapped_obj->gw);
+}
+
+#pragma endregion
+
+#pragma region DHCP
+
+void lwip::NetifWrapper::StartDHCP()
+{
+	dhcp_start(_wrapped_obj.get());
+}
+
+void lwip::NetifWrapper::StopDHCP()
+{
+	dhcp_stop(_wrapped_obj.get());
+}
+
+bool lwip::NetifWrapper::DhcpSuppliedAddress()
+{
+	return dhcp_supplied_address(_wrapped_obj.get());
 }
 
 #pragma endregion

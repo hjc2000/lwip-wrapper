@@ -25,8 +25,11 @@ namespace lwip
 		bsp::IEthernetPort *_ethernet_port = nullptr;
 		std::string _name;
 
+		class LinkController;
+		std::shared_ptr<LinkController> _link_controller = nullptr;
+
 		/// @brief 缓存数据。
-		struct Cache;
+		class Cache;
 		std::shared_ptr<Cache> _cache = nullptr;
 
 		void InitializationCallbackFunc();
@@ -47,15 +50,7 @@ namespace lwip
 		void InputThreadFunc();
 #pragma endregion
 
-#pragma region 私有 DHCP
-		bool TryDHCP();
-
-		/// @brief 启动 DHCP.
-		void StartDHCP();
-
-		/// @brief 停止 DHCP.
-		void StopDHCP();
-#pragma endregion
+		void TryDHCP();
 
 	public:
 #pragma region 生命周期
@@ -130,7 +125,5 @@ namespace lwip
 		/// @brief 检查本网卡是否是默认网卡。
 		/// @return
 		bool IsDefaultNetInterface() const;
-
-		bool IsUp() const;
 	};
 } // namespace lwip

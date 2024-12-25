@@ -10,8 +10,78 @@
 #include <lwip/etharp.h>
 #include <lwip/tcpip.h>
 
-struct lwip::NetifWrapper::Cache
+class lwip::NetifWrapper::LinkController
 {
+private:
+	netif *_netif{};
+	std::atomic_bool _dhcp_started = false;
+
+public:
+	LinkController(netif *net_interface)
+		: _netif(net_interface)
+	{
+	}
+
+	void SetUpLink()
+	{
+		_dhcp_started = false;
+		netif_set_up(_netif);
+		netif_set_link_up(_netif);
+	}
+
+	void SetDownLink()
+	{
+		/**
+		 * netif_set_down 和 netif_set_link_down 会导致 DHCP 停止。所以，为了让
+		 * _dhcp_started 与 lwip 的实际状态同步，禁止私自使用这两个函数，只能使用
+		 * 本类进行操作。
+		 */
+		_dhcp_started = false;
+		netif_set_down(_netif);
+		netif_set_link_down(_netif);
+	}
+
+	bool LinkIsUp()
+	{
+		return netif_is_up(_netif);
+	}
+
+	/// @brief 启动 DHCP.
+	/// @note 本函数幂等。
+	void StartDHCP()
+	{
+		if (_dhcp_started)
+		{
+			return;
+		}
+
+		_dhcp_started = true;
+		dhcp_start(_netif);
+	}
+
+	/// @brief 停止 DHCP.
+	/// @note 本函数幂等。
+	void StopDHCP()
+	{
+		if (!_dhcp_started)
+		{
+			return;
+		}
+
+		_dhcp_started = false;
+		dhcp_stop(_netif);
+	}
+
+	/// @brief 检查 DHCP 是否已经启动。
+	bool DhcpHasStarted() const
+	{
+		return _dhcp_started;
+	}
+};
+
+class lwip::NetifWrapper::Cache
+{
+public:
 	/// @brief 本机IP地址
 	base::IPAddress _ip_address{};
 
@@ -103,30 +173,26 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 		bool is_linked = _ethernet_port->IsLinked();
 
 		// 检测网线的通断，更新 lwip 的 up 状态。
-		if (is_linked != IsUp())
+		if (is_linked != _link_controller->LinkIsUp())
 		{
 			if (is_linked)
 			{
 				// 开启以太网及虚拟网卡
 				DI_Console().WriteLine("检测到网线插入");
 				_ethernet_port->Restart();
-				netif_set_up(_wrapped_obj.get());
-				netif_set_link_up(_wrapped_obj.get());
-				if (_dhcp_enabled)
-				{
-					TryDHCP();
-				}
+				_link_controller->SetUpLink();
 			}
 			else
 			{
 				DI_Console().WriteLine("检测到网线断开。");
-				netif_set_down(_wrapped_obj.get());
-				netif_set_link_down(_wrapped_obj.get());
+				_link_controller->SetDownLink();
 			}
 		}
 
-		if (_dhcp_enabled && is_linked && IsUp())
+		if (_dhcp_enabled && is_linked && _link_controller->LinkIsUp())
 		{
+			TryDHCP();
+
 			// 检测 DHCP 是否成功，成功了需要打印出通过 DHCP 获取到的地址。
 			bool dhcp_supplied_address = HasGotAddressesByDHCP();
 			if (!dhcp_supplied_address_in_last_loop && dhcp_supplied_address)
@@ -208,12 +274,15 @@ void lwip::NetifWrapper::InputThreadFunc()
 
 #pragma endregion
 
-#pragma region 私有 DHCP
-
-bool lwip::NetifWrapper::TryDHCP()
+void lwip::NetifWrapper::TryDHCP()
 {
+	if (_link_controller->DhcpHasStarted())
+	{
+		return;
+	}
+
 	DI_Console().WriteLine("开始进行 DHCP.");
-	StartDHCP();
+	_link_controller->StartDHCP();
 
 	bool dhcp_result = false;
 	for (int i = 0; i < 50; i++)
@@ -238,7 +307,7 @@ bool lwip::NetifWrapper::TryDHCP()
 		DI_Console().WriteLine("使用静态 IP 地址：" + IPAddress().ToString());
 		DI_Console().WriteLine("使用静态子网掩码：" + Netmask().ToString());
 		DI_Console().WriteLine("使用静态网关：" + Gateway().ToString());
-		return false;
+		return;
 	}
 
 	// DHCP 成功
@@ -249,20 +318,7 @@ bool lwip::NetifWrapper::TryDHCP()
 	DI_Console().WriteLine("通过 DHCP 获取到 IP 地址：" + _cache->_ip_address.ToString());
 	DI_Console().WriteLine("通过 DHCP 获取到子网掩码：" + _cache->_netmask.ToString());
 	DI_Console().WriteLine("通过 DHCP 获取到的默认网关：" + _cache->_gateway.ToString());
-	return true;
 }
-
-void lwip::NetifWrapper::StartDHCP()
-{
-	dhcp_start(_wrapped_obj.get());
-}
-
-void lwip::NetifWrapper::StopDHCP()
-{
-	dhcp_stop(_wrapped_obj.get());
-}
-
-#pragma endregion
 
 netif *lwip::NetifWrapper::WrappedObj() const
 {
@@ -276,6 +332,7 @@ lwip::NetifWrapper::NetifWrapper(std::string const &name)
 	_wrapped_obj->state = this;
 	_name = name;
 	_cache = std::shared_ptr<lwip::NetifWrapper::Cache>{new Cache{}};
+	_link_controller = std::shared_ptr<LinkController>{new LinkController{_wrapped_obj.get()}};
 }
 
 lwip::NetifWrapper::~NetifWrapper()
@@ -489,13 +546,13 @@ bool lwip::NetifWrapper::HasGotAddressesByDHCP()
 void lwip::NetifWrapper::EnableDHCP()
 {
 	_dhcp_enabled = true;
-	StartDHCP();
+	_link_controller->StartDHCP();
 }
 
 void lwip::NetifWrapper::DisableDHCP()
 {
 	_dhcp_enabled = false;
-	StopDHCP();
+	_link_controller->StopDHCP();
 }
 
 #pragma endregion
@@ -508,9 +565,4 @@ void lwip::NetifWrapper::SetAsDefaultNetInterface()
 bool lwip::NetifWrapper::IsDefaultNetInterface() const
 {
 	return netif_default == _wrapped_obj.get();
-}
-
-bool lwip::NetifWrapper::IsUp() const
-{
-	return netif_is_up(_wrapped_obj.get());
 }

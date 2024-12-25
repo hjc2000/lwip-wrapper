@@ -13,11 +13,11 @@
 struct lwip::NetifWrapper::Cache
 {
 	/// @brief 本机IP地址
-	base::IPAddress _ip_address{"0.0.0.0"};
+	base::IPAddress _ip_address{};
 
 	base::IPAddress _netmask{"255.255.255.0"};
 
-	base::IPAddress _gateway{"0.0.0.0"};
+	base::IPAddress _gateway{};
 
 	/// @brief 本网卡所使用的 MAC 地址。
 	base::Mac _mac{

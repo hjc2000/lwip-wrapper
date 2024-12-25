@@ -9,6 +9,7 @@
 #include <lwip/dhcp.h>
 #include <lwip/etharp.h>
 #include <lwip/tcpip.h>
+#include <TcpIpInitialize.h>
 
 class lwip::NetifWrapper::LinkController
 {
@@ -386,7 +387,7 @@ void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,
 	}
 
 	_ethernet_port->Open(_cache->_mac);
-	tcpip_init(nullptr, nullptr);
+	TcpIpInitialize();
 
 	ip_addr_t ip_addr_t_ip_address = base::Convert<ip_addr_t, base::IPAddress>(_cache->_ip_address);
 	ip_addr_t ip_addr_t_netmask = base::Convert<ip_addr_t, base::IPAddress>(_cache->_netmask);

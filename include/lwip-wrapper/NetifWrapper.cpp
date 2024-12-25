@@ -476,6 +476,11 @@ void lwip::NetifWrapper::ClearAllAddress()
 
 bool lwip::NetifWrapper::HasGotAddressesByDHCP()
 {
+	if (!_dhcp_enabled)
+	{
+		throw std::runtime_error{std::string{CODE_POS_STR} + "要先使能 DHCP 才能调用本方法"};
+	}
+
 	return dhcp_supplied_address(_wrapped_obj.get());
 }
 

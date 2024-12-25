@@ -125,11 +125,10 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 			}
 		}
 
-		// 网线已连接，并且 lwip 是 up 状态。
-		if (is_linked && IsUp())
+		if (_dhcp_enabled && is_linked && IsUp())
 		{
 			// 检测 DHCP 是否成功，成功了需要打印出通过 DHCP 获取到的地址。
-			bool dhcp_supplied_address = DhcpSuppliedAddress();
+			bool dhcp_supplied_address = HasGotAddressesByDHCP();
 			if (!dhcp_supplied_address_in_last_loop && dhcp_supplied_address)
 			{
 				_cache->_ip_address = IPAddress();
@@ -220,7 +219,7 @@ bool lwip::NetifWrapper::TryDHCP()
 	for (int i = 0; i < 50; i++)
 	{
 		// 如果失败，最多重试 50 次。
-		dhcp_result = DhcpSuppliedAddress();
+		dhcp_result = HasGotAddressesByDHCP();
 		if (dhcp_result)
 		{
 			break;
@@ -261,11 +260,6 @@ void lwip::NetifWrapper::StartDHCP()
 void lwip::NetifWrapper::StopDHCP()
 {
 	dhcp_stop(_wrapped_obj.get());
-}
-
-bool lwip::NetifWrapper::DhcpSuppliedAddress()
-{
-	return dhcp_supplied_address(_wrapped_obj.get());
 }
 
 #pragma endregion
@@ -479,6 +473,11 @@ void lwip::NetifWrapper::ClearAllAddress()
 }
 
 #pragma endregion
+
+bool lwip::NetifWrapper::HasGotAddressesByDHCP()
+{
+	return dhcp_supplied_address(_wrapped_obj.get());
+}
 
 void lwip::NetifWrapper::EnableDHCP()
 {

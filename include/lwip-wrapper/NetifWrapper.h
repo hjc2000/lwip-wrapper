@@ -51,14 +51,14 @@ namespace lwip
 		void InputThreadFunc();
 #pragma endregion
 
-		/// @brief 获取被包装对象的指针。
-		/// @return
-		netif *WrappedObj() const override;
-
 	public:
 		/// @brief 构造函数。
 		NetifWrapper(std::string const &name);
 		~NetifWrapper();
+
+		/// @brief 获取被包装对象的指针。
+		/// @return
+		netif *WrappedObj() const override;
 
 		std::string Name() const;
 

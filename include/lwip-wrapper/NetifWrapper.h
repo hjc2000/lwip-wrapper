@@ -47,7 +47,7 @@ namespace lwip
 		void InputThreadFunc();
 #pragma endregion
 
-#pragma region DHCP
+#pragma region 私有 DHCP
 		bool TryDHCP();
 
 		/// @brief 启动 DHCP.

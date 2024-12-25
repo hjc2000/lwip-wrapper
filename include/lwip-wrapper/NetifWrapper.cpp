@@ -209,7 +209,7 @@ void lwip::NetifWrapper::InputThreadFunc()
 
 #pragma endregion
 
-#pragma region DHCP
+#pragma region 私有 DHCP
 
 bool lwip::NetifWrapper::TryDHCP()
 {

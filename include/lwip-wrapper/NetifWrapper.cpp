@@ -22,6 +22,7 @@ public:
 	{
 	}
 
+	/// @brief 通知 lwip 当前链路已接通。
 	void SetUpLink()
 	{
 		_dhcp_started = false;
@@ -29,6 +30,7 @@ public:
 		netif_set_link_up(_netif);
 	}
 
+	/// @brief 通知 lwip 当前链路已断开。
 	void SetDownLink()
 	{
 		/**

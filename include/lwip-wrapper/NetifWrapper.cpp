@@ -43,6 +43,10 @@ public:
 		netif_set_link_down(_netif);
 	}
 
+	/// @brief 检查当前 lwip 被告知的链路状态。即是断开还是接通了。
+	/// @note 这个值并不指示真实的链路状态，而是 lwip 上次被 SetUpLink 方法
+	/// 和 SetDownLink 方法所告知的状态。
+	/// @return
 	bool LinkIsUp()
 	{
 		return netif_is_up(_netif);

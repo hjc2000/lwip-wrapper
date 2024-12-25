@@ -20,6 +20,7 @@ namespace lwip
 	{
 	private:
 		std::atomic_bool _disposed = false;
+		std::atomic_bool _dhcp_enabled = false;
 		std::unique_ptr<netif> _wrapped_obj{new netif{}};
 		bsp::IEthernetPort *_ethernet_port = nullptr;
 		std::string _name;
@@ -44,6 +45,20 @@ namespace lwip
 
 		/// @brief 负责将网口接收到的数据送给 lwip.
 		void InputThreadFunc();
+#pragma endregion
+
+#pragma region DHCP
+		bool TryDHCP();
+
+		/// @brief 启动 DHCP.
+		void StartDHCP();
+
+		/// @brief 停止 DHCP.
+		void StopDHCP();
+
+		/// @brief 检查本次启动 DHCP 后 IP 地址是否被 DHCP 提供了。
+		/// @return 如果 DHCP 提供了 IP 地址，则返回 true, 否则返回 false.
+		bool DhcpSuppliedAddress();
 #pragma endregion
 
 	public:
@@ -104,17 +119,8 @@ namespace lwip
 		void ClearAllAddress();
 #pragma endregion
 
-#pragma region DHCP
-		/// @brief 启动 DHCP.
-		void StartDHCP();
-
-		/// @brief 停止 DHCP.
-		void StopDHCP();
-
-		/// @brief 检查本次启动 DHCP 后 IP 地址是否被 DHCP 提供了。
-		/// @return 如果 DHCP 提供了 IP 地址，则返回 true, 否则返回 false.
-		bool DhcpSuppliedAddress();
-#pragma endregion
+		void EnableDHCP();
+		void DisableDHCP();
 
 		/// @brief 设置为默认网卡。
 		void SetAsDefaultNetInterface();

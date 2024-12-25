@@ -112,6 +112,10 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 				_ethernet_port->Restart();
 				netif_set_up(_wrapped_obj.get());
 				netif_set_link_up(_wrapped_obj.get());
+				if (_dhcp_enabled)
+				{
+					TryDHCP();
+				}
 			}
 			else
 			{
@@ -201,6 +205,67 @@ void lwip::NetifWrapper::InputThreadFunc()
 			pbuf_free(head_pbuf);
 		}
 	}
+}
+
+#pragma endregion
+
+#pragma region DHCP
+
+bool lwip::NetifWrapper::TryDHCP()
+{
+	DI_Console().WriteLine("开始进行 DHCP.");
+	StartDHCP();
+
+	bool dhcp_result = false;
+	for (int i = 0; i < 50; i++)
+	{
+		// 如果失败，最多重试 50 次。
+		dhcp_result = DhcpSuppliedAddress();
+		if (dhcp_result)
+		{
+			break;
+		}
+
+		DI_Delayer().Delay(std::chrono::milliseconds{100});
+	}
+
+	if (!dhcp_result)
+	{
+		// 使用静态IP地址
+		SetIPAddress(_cache->_ip_address);
+		SetNetmask(_cache->_netmask);
+		SetGateway(_cache->_gateway);
+		DI_Console().WriteLine("DHCP 超时：");
+		DI_Console().WriteLine("使用静态 IP 地址：" + IPAddress().ToString());
+		DI_Console().WriteLine("使用静态子网掩码：" + Netmask().ToString());
+		DI_Console().WriteLine("使用静态网关：" + Gateway().ToString());
+		return false;
+	}
+
+	// DHCP 成功
+	_cache->_ip_address = IPAddress();
+	_cache->_netmask = Netmask();
+	_cache->_gateway = Gateway();
+	DI_Console().WriteLine("DHCP 成功：");
+	DI_Console().WriteLine("通过 DHCP 获取到 IP 地址：" + _cache->_ip_address.ToString());
+	DI_Console().WriteLine("通过 DHCP 获取到子网掩码：" + _cache->_netmask.ToString());
+	DI_Console().WriteLine("通过 DHCP 获取到的默认网关：" + _cache->_gateway.ToString());
+	return true;
+}
+
+void lwip::NetifWrapper::StartDHCP()
+{
+	dhcp_start(_wrapped_obj.get());
+}
+
+void lwip::NetifWrapper::StopDHCP()
+{
+	dhcp_stop(_wrapped_obj.get());
+}
+
+bool lwip::NetifWrapper::DhcpSuppliedAddress()
+{
+	return dhcp_supplied_address(_wrapped_obj.get());
 }
 
 #pragma endregion
@@ -415,24 +480,17 @@ void lwip::NetifWrapper::ClearAllAddress()
 
 #pragma endregion
 
-#pragma region DHCP
-
-void lwip::NetifWrapper::StartDHCP()
+void lwip::NetifWrapper::EnableDHCP()
 {
-	dhcp_start(_wrapped_obj.get());
+	_dhcp_enabled = true;
+	StartDHCP();
 }
 
-void lwip::NetifWrapper::StopDHCP()
+void lwip::NetifWrapper::DisableDHCP()
 {
-	dhcp_stop(_wrapped_obj.get());
+	_dhcp_enabled = false;
+	StopDHCP();
 }
-
-bool lwip::NetifWrapper::DhcpSuppliedAddress()
-{
-	return dhcp_supplied_address(_wrapped_obj.get());
-}
-
-#pragma endregion
 
 void lwip::NetifWrapper::SetAsDefaultNetInterface()
 {

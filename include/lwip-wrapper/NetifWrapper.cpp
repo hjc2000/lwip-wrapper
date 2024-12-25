@@ -474,6 +474,8 @@ void lwip::NetifWrapper::ClearAllAddress()
 
 #pragma endregion
 
+#pragma region 公共 DHCP
+
 bool lwip::NetifWrapper::HasGotAddressesByDHCP()
 {
 	if (!_dhcp_enabled)
@@ -495,6 +497,8 @@ void lwip::NetifWrapper::DisableDHCP()
 	_dhcp_enabled = false;
 	StopDHCP();
 }
+
+#pragma endregion
 
 void lwip::NetifWrapper::SetAsDefaultNetInterface()
 {

@@ -115,12 +115,14 @@ namespace lwip
 		void ClearAllAddress();
 #pragma endregion
 
+#pragma region 公共 DHCP
 		/// @brief 检查本次启动 DHCP 后 IP 地址是否被 DHCP 提供了。
 		/// @return 如果 DHCP 提供了 IP 地址，则返回 true, 否则返回 false.
 		bool HasGotAddressesByDHCP();
 
 		void EnableDHCP();
 		void DisableDHCP();
+#pragma endregion
 
 		/// @brief 设置为默认网卡。
 		void SetAsDefaultNetInterface();

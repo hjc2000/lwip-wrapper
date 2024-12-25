@@ -20,17 +20,7 @@ struct lwip::NetifWrapper::Cache
 	base::IPAddress _gateway{};
 
 	/// @brief 本网卡所使用的 MAC 地址。
-	base::Mac _mac{
-		std::endian::big,
-		base::Array<uint8_t, 6>{
-			0xB8,
-			0xAE,
-			0x1D,
-			0x00,
-			0x04,
-			0x00,
-		},
-	};
+	base::Mac _mac;
 
 	int32_t _mtu = 1500;
 };

@@ -164,6 +164,13 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 {
 	while (true)
 	{
+		if (_disposed)
+		{
+			DI_Console().WriteLine("LinkStateDetectingThreadFunc 退出");
+			_link_state_detecting_thread_func_exited->Release();
+			return;
+		}
+
 		bool is_linked = _ethernet_port->IsLinked();
 		if (is_linked == netif_is_up(_wrapped_obj.get()))
 		{
@@ -171,6 +178,7 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 			continue;
 		}
 
+		// 网线连接了，lwip 没有 up ，或者网线没有连接，lwip 处于 up 状态。
 		if (is_linked)
 		{
 			// 开启以太网及虚拟网卡
@@ -196,6 +204,13 @@ void lwip::NetifWrapper::InputThreadFunc()
 {
 	while (true)
 	{
+		if (_disposed)
+		{
+			DI_Console().WriteLine("InputThreadFunc 退出");
+			_input_thread_func_exited->Release();
+			return;
+		}
+
 		base::IEnumerable<base::ReadOnlySpan> const &spans = _ethernet_port->Receive();
 		pbuf *head_pbuf = nullptr;
 		pbuf *current_pbuf = nullptr;
@@ -259,7 +274,19 @@ lwip::NetifWrapper::NetifWrapper(std::string const &name)
 
 lwip::NetifWrapper::~NetifWrapper()
 {
-	// 析构后移除网卡。
+	Dispose();
+}
+
+void lwip::NetifWrapper::Dispose()
+{
+	if (_disposed)
+	{
+		return;
+	}
+
+	_disposed = true;
+	_link_state_detecting_thread_func_exited->Acquire();
+	_input_thread_func_exited->Acquire();
 	netif_remove(_wrapped_obj.get());
 }
 

@@ -1,8 +1,11 @@
 #pragma once
+#include <atomic>
 #include <base/Convert.h>
+#include <base/IDisposable.h>
 #include <base/net/IPAddress.h>
 #include <base/net/Mac.h>
 #include <base/Wrapper.h>
+#include <bsp-interface/di/task.h>
 #include <bsp-interface/ethernet/IEthernetPort.h>
 #include <lwip/netif.h>
 #include <memory>
@@ -12,9 +15,11 @@ namespace lwip
 	/// @brief lwip 的 netif 的包装器。
 	/// @warning 本类依赖 netif 的 state 字段。使用本类后，禁止修改此字段。
 	class NetifWrapper :
-		public base::Wrapper<netif>
+		public base::Wrapper<netif>,
+		public base::IDisposable
 	{
 	private:
+		std::atomic_bool _disposed = false;
 		std::unique_ptr<netif> _wrapped_obj{new netif{}};
 		bsp::IEthernetPort *_ethernet_port = nullptr;
 		std::string _name;
@@ -44,8 +49,12 @@ namespace lwip
 #pragma endregion
 
 #pragma region 线程函数
+		std::shared_ptr<bsp::IBinarySemaphore> _link_state_detecting_thread_func_exited = DICreate_BinarySemaphore();
+
 		/// @brief 检测链接状态的线程函数。
 		void LinkStateDetectingThreadFunc();
+
+		std::shared_ptr<bsp::IBinarySemaphore> _input_thread_func_exited = DICreate_BinarySemaphore();
 
 		/// @brief 负责将网口接收到的数据送给 lwip.
 		void InputThreadFunc();
@@ -55,6 +64,8 @@ namespace lwip
 		/// @brief 构造函数。
 		NetifWrapper(std::string const &name);
 		~NetifWrapper();
+
+		void Dispose() override;
 
 		/// @brief 获取被包装对象的指针。
 		/// @return

@@ -220,6 +220,8 @@ netif *lwip::NetifWrapper::WrappedObj() const
 	return _wrapped_obj.get();
 }
 
+#pragma region 生命周期
+
 lwip::NetifWrapper::NetifWrapper(std::string const &name)
 {
 	_wrapped_obj->state = this;
@@ -244,6 +246,8 @@ void lwip::NetifWrapper::Dispose()
 	_input_thread_func_exited->Acquire();
 	netif_remove(_wrapped_obj.get());
 }
+
+#pragma endregion
 
 std::string lwip::NetifWrapper::Name() const
 {

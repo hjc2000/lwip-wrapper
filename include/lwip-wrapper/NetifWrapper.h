@@ -47,11 +47,13 @@ namespace lwip
 #pragma endregion
 
 	public:
+#pragma region 生命周期
 		/// @brief 构造函数。
 		NetifWrapper(std::string const &name);
 		~NetifWrapper();
 
 		void Dispose() override;
+#pragma endregion
 
 		/// @brief 获取被包装对象的指针。
 		/// @return

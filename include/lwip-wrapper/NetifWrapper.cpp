@@ -13,11 +13,11 @@
 struct lwip::NetifWrapper::Cache
 {
 	/// @brief 本机IP地址
-	base::IPAddress _ip_address{"192.168.1.30"};
+	base::IPAddress _ip_address{"0.0.0.0"};
 
 	base::IPAddress _netmask{"255.255.255.0"};
 
-	base::IPAddress _gateway{"192.168.1.1"};
+	base::IPAddress _gateway{"0.0.0.0"};
 
 	/// @brief 本网卡所使用的 MAC 地址。
 	base::Mac _mac{
@@ -254,8 +254,6 @@ std::string lwip::NetifWrapper::Name() const
 	return _name;
 }
 
-#pragma region Open
-
 void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,
 							  base::Mac const &mac,
 							  base::IPAddress const &ip_address,
@@ -263,26 +261,13 @@ void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,
 							  base::IPAddress const &gateway,
 							  int32_t mtu)
 {
+	_ethernet_port = ethernet_port;
 	_cache->_mac = mac;
 	_cache->_ip_address = ip_address;
 	_cache->_netmask = netmask;
 	_cache->_gateway = gateway;
-
-	// 将参数赋值给字段赋值后，调用参数较少的 Open 重载版本。
-	Open(ethernet_port, mtu);
-}
-
-void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port, int32_t mtu)
-{
 	_cache->_mtu = mtu;
 
-	// 将参数赋值给字段赋值后，调用参数较少的 Open 重载版本。
-	Open(ethernet_port);
-}
-
-void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port)
-{
-	_ethernet_port = ethernet_port;
 	if (_ethernet_port == nullptr)
 	{
 		throw std::runtime_error{"必须先调用 Open 方法传入一个 bsp::IEthernetPort 对象"};
@@ -291,9 +276,9 @@ void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port)
 	_ethernet_port->Open(_cache->_mac);
 	tcpip_init(nullptr, nullptr);
 
-	ip_addr_t ip_address = base::Convert<ip_addr_t, base::IPAddress>(_cache->_ip_address);
-	ip_addr_t netmask = base::Convert<ip_addr_t, base::IPAddress>(_cache->_netmask);
-	ip_addr_t gataway = base::Convert<ip_addr_t, base::IPAddress>(_cache->_gateway);
+	ip_addr_t ip_addr_t_ip_address = base::Convert<ip_addr_t, base::IPAddress>(_cache->_ip_address);
+	ip_addr_t ip_addr_t_netmask = base::Convert<ip_addr_t, base::IPAddress>(_cache->_netmask);
+	ip_addr_t ip_addr_t_gataway = base::Convert<ip_addr_t, base::IPAddress>(_cache->_gateway);
 
 	auto initialization_callback = [](netif *p) -> err_t
 	{
@@ -313,16 +298,15 @@ void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port)
 	 * 这里传递了 this，这样就将 netif 和本类对象绑定了，只要拿到了 netif 指针，就能拿到本类对象的指针。
 	 */
 	netif *netif_add_result = netif_add(_wrapped_obj.get(),
-										&ip_address,
-										&netmask,
-										&gataway,
+										&ip_addr_t_ip_address,
+										&ip_addr_t_netmask,
+										&ip_addr_t_gataway,
 										this,
 										initialization_callback,
 										tcpip_input);
 
 	if (netif_add_result == nullptr)
 	{
-		DI_Console().WriteLine("添加网卡失败。");
 		throw std::runtime_error{"添加网卡失败。"};
 	}
 
@@ -347,8 +331,6 @@ void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port)
 		},
 		512);
 }
-
-#pragma endregion
 
 #pragma region 地址
 

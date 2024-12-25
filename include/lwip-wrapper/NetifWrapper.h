@@ -61,7 +61,6 @@ namespace lwip
 
 		std::string Name() const;
 
-#pragma region Open
 		/// @brief 打开网卡，打开后会向 lwip 注册本网卡，然后就可以被 lwip 使用了。
 		/// @param ethernet_port
 		/// @param mac
@@ -75,17 +74,6 @@ namespace lwip
 				  base::IPAddress const &netmask,
 				  base::IPAddress const &gateway,
 				  int32_t mtu);
-
-		/// @brief 打开网卡，打开后会向 lwip 注册本网卡，然后就可以被 lwip 使用了。
-		/// @param ethernet_port
-		/// @param mtu
-		void Open(bsp::IEthernetPort *ethernet_port, int32_t mtu);
-
-		/// @brief 打开网卡，打开后会向 lwip 注册本网卡，然后就可以被 lwip 使用了。
-		/// @note 仅仅传一个 bsp::IEthernetPort 进来，其他的参数全部默认。
-		/// @param ethernet_port
-		void Open(bsp::IEthernetPort *ethernet_port);
-#pragma endregion
 
 #pragma region 地址
 		base::Mac Mac() const;

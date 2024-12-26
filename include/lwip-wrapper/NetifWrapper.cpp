@@ -232,50 +232,8 @@ void lwip::NetifWrapper::InputThreadFunc()
 			return;
 		}
 
-		base::IEnumerable<base::ReadOnlySpan> const &spans = _ethernet_port->Receive();
-		pbuf *head_pbuf = nullptr;
-		pbuf *current_pbuf = nullptr;
-
-		for (base::ReadOnlySpan const &span : spans)
-		{
-			pbuf_custom *custom_pbuf = new pbuf_custom{};
-			custom_pbuf->custom_free_function = [](pbuf *p)
-			{
-				delete reinterpret_cast<pbuf_custom *>(p);
-			};
-
-			pbuf *p = pbuf_alloced_custom(PBUF_RAW,
-										  span.Size(),
-										  PBUF_REF,
-										  custom_pbuf,
-										  const_cast<uint8_t *>(span.Buffer()),
-										  span.Size());
-
-			p->next = nullptr;
-			if (head_pbuf == nullptr)
-			{
-				head_pbuf = p;
-				current_pbuf = p;
-			}
-			else
-			{
-				current_pbuf->next = p;
-				current_pbuf = p;
-			}
-		}
-
-		if (head_pbuf == nullptr)
-		{
-			continue;
-		}
-
-		// 串成链表后一次性输入。
-		err_t input_result = _wrapped_obj->input(head_pbuf, _wrapped_obj.get());
-		if (input_result != err_enum_t::ERR_OK)
-		{
-			// 输入发生错误，释放 pbuf 链表。
-			pbuf_free(head_pbuf);
-		}
+		base::ReadOnlySpan span = _ethernet_port->Receive();
+		Input(span);
 	}
 }
 
@@ -572,4 +530,30 @@ void lwip::NetifWrapper::SetAsDefaultNetInterface()
 bool lwip::NetifWrapper::IsDefaultNetInterface() const
 {
 	return netif_default == _wrapped_obj.get();
+}
+
+void lwip::NetifWrapper::Input(base::ReadOnlySpan const &span)
+{
+	pbuf_custom *custom_pbuf = new pbuf_custom{};
+	custom_pbuf->custom_free_function = [](pbuf *p)
+	{
+		delete reinterpret_cast<pbuf_custom *>(p);
+	};
+
+	pbuf *buf = pbuf_alloced_custom(PBUF_RAW,
+									span.Size(),
+									PBUF_REF,
+									custom_pbuf,
+									const_cast<uint8_t *>(span.Buffer()),
+									span.Size());
+
+	buf->next = nullptr;
+
+	// 串成链表后一次性输入。
+	err_t input_result = _wrapped_obj->input(buf, _wrapped_obj.get());
+	if (input_result != err_enum_t::ERR_OK)
+	{
+		// 输入发生错误，释放 pbuf 链表。
+		pbuf_free(buf);
+	}
 }

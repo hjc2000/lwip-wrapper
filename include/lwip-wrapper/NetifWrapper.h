@@ -125,5 +125,9 @@ namespace lwip
 		/// @brief 检查本网卡是否是默认网卡。
 		/// @return
 		bool IsDefaultNetInterface() const;
+
+		/// @brief 将接收到的以太网帧输入网卡。
+		/// @param span
+		void Input(base::ReadOnlySpan const &span);
 	};
 } // namespace lwip

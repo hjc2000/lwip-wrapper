@@ -163,8 +163,6 @@ void lwip::NetifWrapper::SendPbuf(pbuf *p)
 	_ethernet_port->Send(spans);
 }
 
-#pragma region 线程函数
-
 void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 {
 	bool dhcp_supplied_address_in_last_loop = false;
@@ -220,8 +218,6 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 		DI_Delayer().Delay(std::chrono::milliseconds{100});
 	}
 }
-
-#pragma endregion
 
 void lwip::NetifWrapper::TryDHCP()
 {

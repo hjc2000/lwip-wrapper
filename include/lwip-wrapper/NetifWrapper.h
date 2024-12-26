@@ -24,6 +24,7 @@ namespace lwip
 		std::unique_ptr<netif> _wrapped_obj{new netif{}};
 		bsp::IEthernetPort *_ethernet_port = nullptr;
 		std::string _name;
+		std::shared_ptr<bsp::IBinarySemaphore> _link_state_detecting_thread_func_exited = DICreate_BinarySemaphore();
 
 		class LinkController;
 		std::shared_ptr<LinkController> _link_controller = nullptr;
@@ -38,12 +39,8 @@ namespace lwip
 		/// @param p
 		void SendPbuf(pbuf *p);
 
-#pragma region 线程函数
-		std::shared_ptr<bsp::IBinarySemaphore> _link_state_detecting_thread_func_exited = DICreate_BinarySemaphore();
-
 		/// @brief 检测链接状态的线程函数。
 		void LinkStateDetectingThreadFunc();
-#pragma endregion
 
 		void TryDHCP();
 

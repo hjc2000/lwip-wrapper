@@ -221,22 +221,6 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 	}
 }
 
-void lwip::NetifWrapper::InputThreadFunc()
-{
-	while (true)
-	{
-		if (_disposed)
-		{
-			DI_Console().WriteLine("InputThreadFunc 退出");
-			_input_thread_func_exited->Release();
-			return;
-		}
-
-		base::ReadOnlySpan span = _ethernet_port->Receive();
-		Input(span);
-	}
-}
-
 #pragma endregion
 
 void lwip::NetifWrapper::TryDHCP()
@@ -314,7 +298,6 @@ void lwip::NetifWrapper::Dispose()
 
 	_disposed = true;
 	_link_state_detecting_thread_func_exited->Acquire();
-	_input_thread_func_exited->Acquire();
 	netif_remove(_wrapped_obj.get());
 }
 
@@ -392,13 +375,6 @@ void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,
 		[this]()
 		{
 			LinkStateDetectingThreadFunc();
-		},
-		512);
-
-	DI_TaskManager().Create(
-		[this]()
-		{
-			InputThreadFunc();
 		},
 		512);
 }
@@ -534,6 +510,11 @@ bool lwip::NetifWrapper::IsDefaultNetInterface() const
 
 void lwip::NetifWrapper::Input(base::ReadOnlySpan const &span)
 {
+	if (_disposed)
+	{
+		throw std::runtime_error{std::string{CODE_POS_STR} + "本 NetifWrapper 对象已被释放，无法输入。"};
+	}
+
 	pbuf_custom *custom_pbuf = new pbuf_custom{};
 	custom_pbuf->custom_free_function = [](pbuf *p)
 	{

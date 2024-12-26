@@ -43,11 +43,6 @@ namespace lwip
 
 		/// @brief 检测链接状态的线程函数。
 		void LinkStateDetectingThreadFunc();
-
-		std::shared_ptr<bsp::IBinarySemaphore> _input_thread_func_exited = DICreate_BinarySemaphore();
-
-		/// @brief 负责将网口接收到的数据送给 lwip.
-		void InputThreadFunc();
 #pragma endregion
 
 		void TryDHCP();

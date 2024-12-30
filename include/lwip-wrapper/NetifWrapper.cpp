@@ -526,7 +526,6 @@ void lwip::NetifWrapper::Input(base::ReadOnlySpan const &span)
 
 	buf->next = nullptr;
 
-	// 串成链表后一次性输入。
 	err_t input_result = _wrapped_obj->input(buf, _wrapped_obj.get());
 	if (input_result != err_enum_t::ERR_OK)
 	{

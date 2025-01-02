@@ -219,6 +219,31 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 	}
 }
 
+void lwip::NetifWrapper::OnInput(base::ReadOnlySpan span)
+{
+	pbuf_custom *custom_pbuf = new pbuf_custom{};
+	custom_pbuf->custom_free_function = [](pbuf *p)
+	{
+		delete reinterpret_cast<pbuf_custom *>(p);
+	};
+
+	pbuf *buf = pbuf_alloced_custom(PBUF_RAW,
+									span.Size(),
+									PBUF_REF,
+									custom_pbuf,
+									const_cast<uint8_t *>(span.Buffer()),
+									span.Size());
+
+	buf->next = nullptr;
+
+	err_t input_result = _wrapped_obj->input(buf, _wrapped_obj.get());
+	if (input_result != err_enum_t::ERR_OK)
+	{
+		// 输入发生错误，释放 pbuf 链表。
+		pbuf_free(buf);
+	}
+}
+
 void lwip::NetifWrapper::TryDHCP()
 {
 	if (_link_controller->DhcpHasStarted())
@@ -293,6 +318,12 @@ void lwip::NetifWrapper::Dispose()
 	}
 
 	_disposed = true;
+
+	if (_unsubscribe_token != nullptr)
+	{
+		_unsubscribe_token->Unsubscribe();
+	}
+
 	_link_state_detecting_thread_func_exited->Acquire();
 	netif_remove(_wrapped_obj.get());
 }
@@ -373,6 +404,17 @@ void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,
 			LinkStateDetectingThreadFunc();
 		},
 		512);
+
+	if (_unsubscribe_token != nullptr)
+	{
+		_unsubscribe_token->Unsubscribe();
+	}
+
+	_unsubscribe_token = _ethernet_port->ReceivintEhternetFrameEvent().Subscribe(
+		[this](base::ReadOnlySpan span)
+		{
+			OnInput(span);
+		});
 }
 
 #pragma region 地址
@@ -502,34 +544,4 @@ void lwip::NetifWrapper::SetAsDefaultNetInterface()
 bool lwip::NetifWrapper::IsDefaultNetInterface() const
 {
 	return netif_default == _wrapped_obj.get();
-}
-
-void lwip::NetifWrapper::Input(base::ReadOnlySpan const &span)
-{
-	if (_disposed)
-	{
-		throw std::runtime_error{std::string{CODE_POS_STR} + "本 NetifWrapper 对象已被释放，无法输入。"};
-	}
-
-	pbuf_custom *custom_pbuf = new pbuf_custom{};
-	custom_pbuf->custom_free_function = [](pbuf *p)
-	{
-		delete reinterpret_cast<pbuf_custom *>(p);
-	};
-
-	pbuf *buf = pbuf_alloced_custom(PBUF_RAW,
-									span.Size(),
-									PBUF_REF,
-									custom_pbuf,
-									const_cast<uint8_t *>(span.Buffer()),
-									span.Size());
-
-	buf->next = nullptr;
-
-	err_t input_result = _wrapped_obj->input(buf, _wrapped_obj.get());
-	if (input_result != err_enum_t::ERR_OK)
-	{
-		// 输入发生错误，释放 pbuf 链表。
-		pbuf_free(buf);
-	}
 }

@@ -25,6 +25,7 @@ namespace lwip
 		bsp::IEthernetPort *_ethernet_port = nullptr;
 		std::string _name;
 		std::shared_ptr<bsp::IBinarySemaphore> _link_state_detecting_thread_func_exited = DICreate_BinarySemaphore();
+		std::shared_ptr<base::IUnsubscribeToken> _unsubscribe_token;
 
 		class LinkController;
 		std::shared_ptr<LinkController> _link_controller = nullptr;
@@ -41,6 +42,8 @@ namespace lwip
 
 		/// @brief 检测链接状态的线程函数。
 		void LinkStateDetectingThreadFunc();
+
+		void OnInput(base::ReadOnlySpan span);
 
 		void TryDHCP();
 
@@ -117,9 +120,5 @@ namespace lwip
 		/// @brief 检查本网卡是否是默认网卡。
 		/// @return
 		bool IsDefaultNetInterface() const;
-
-		/// @brief 将接收到的以太网帧输入网卡。
-		/// @param span
-		void Input(base::ReadOnlySpan const &span);
 	};
 } // namespace lwip

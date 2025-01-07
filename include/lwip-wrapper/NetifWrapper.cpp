@@ -271,6 +271,51 @@ void lwip::NetifWrapper::TryDHCP()
 	DI_Console().WriteLine("通过 DHCP 获取到的默认网关：" + _cache->_gateway.ToString());
 }
 
+void lwip::NetifWrapper::SubscribeEvents()
+{
+	{
+		if (_receiving_event_unsubscribe_token != nullptr)
+		{
+			_receiving_event_unsubscribe_token->Unsubscribe();
+		}
+
+		_receiving_event_unsubscribe_token = _ethernet_port->ReceivingEhternetFrameEvent().Subscribe(
+			[this](base::ReadOnlySpan span)
+			{
+				OnInput(span);
+			});
+	}
+
+	{
+		if (_connection_event_unsubscribe_token != nullptr)
+		{
+			_connection_event_unsubscribe_token->Unsubscribe();
+		}
+
+		_connection_event_unsubscribe_token = _ethernet_port->ConnectionEvent().Subscribe(
+			[this]()
+			{
+				// 开启以太网及虚拟网卡
+				DI_Console().WriteLine("检测到网线插入");
+				_link_controller->SetUpLink();
+			});
+	}
+
+	{
+		if (_disconnection_event_unsubscribe_token != nullptr)
+		{
+			_disconnection_event_unsubscribe_token->Unsubscribe();
+		}
+
+		_disconnection_event_unsubscribe_token = _ethernet_port->DisconnectionEvent().Subscribe(
+			[this]()
+			{
+				DI_Console().WriteLine("检测到网线断开。");
+				_link_controller->SetDownLink();
+			});
+	}
+}
+
 netif *lwip::NetifWrapper::WrappedObj() const
 {
 	return _wrapped_obj.get();
@@ -300,9 +345,9 @@ void lwip::NetifWrapper::Dispose()
 
 	_disposed = true;
 
-	if (_unsubscribe_token != nullptr)
+	if (_receiving_event_unsubscribe_token != nullptr)
 	{
-		_unsubscribe_token->Unsubscribe();
+		_receiving_event_unsubscribe_token->Unsubscribe();
 	}
 
 	if (_connection_event_unsubscribe_token != nullptr)
@@ -396,47 +441,7 @@ void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,
 		},
 		256);
 
-	{
-		if (_unsubscribe_token != nullptr)
-		{
-			_unsubscribe_token->Unsubscribe();
-		}
-
-		_unsubscribe_token = _ethernet_port->ReceivintEhternetFrameEvent().Subscribe(
-			[this](base::ReadOnlySpan span)
-			{
-				OnInput(span);
-			});
-	}
-
-	{
-		if (_connection_event_unsubscribe_token != nullptr)
-		{
-			_connection_event_unsubscribe_token->Unsubscribe();
-		}
-
-		_connection_event_unsubscribe_token = _ethernet_port->ConnectionEvent().Subscribe(
-			[this]()
-			{
-				// 开启以太网及虚拟网卡
-				DI_Console().WriteLine("检测到网线插入");
-				_link_controller->SetUpLink();
-			});
-	}
-
-	{
-		if (_disconnection_event_unsubscribe_token != nullptr)
-		{
-			_disconnection_event_unsubscribe_token->Unsubscribe();
-		}
-
-		_disconnection_event_unsubscribe_token = _ethernet_port->DisconnectionEvent().Subscribe(
-			[this]()
-			{
-				DI_Console().WriteLine("检测到网线断开。");
-				_link_controller->SetDownLink();
-			});
-	}
+	SubscribeEvents();
 }
 
 #pragma region 地址

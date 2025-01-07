@@ -175,26 +175,7 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 			return;
 		}
 
-		bool is_linked = _ethernet_port->IsLinked();
-
-		// 检测网线的通断，更新 lwip 的 up 状态。
-		if (is_linked != _link_controller->LinkIsUp())
-		{
-			if (is_linked)
-			{
-				// 开启以太网及虚拟网卡
-				DI_Console().WriteLine("检测到网线插入");
-				_ethernet_port->Restart();
-				_link_controller->SetUpLink();
-			}
-			else
-			{
-				DI_Console().WriteLine("检测到网线断开。");
-				_link_controller->SetDownLink();
-			}
-		}
-
-		if (_dhcp_enabled && is_linked && _link_controller->LinkIsUp())
+		if (_dhcp_enabled && _link_controller->LinkIsUp())
 		{
 			TryDHCP();
 
@@ -215,7 +196,7 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 		}
 
 		// 延时。检测链路状态不需要那么快。
-		DI_Delayer().Delay(std::chrono::milliseconds{100});
+		DI_Delayer().Delay(std::chrono::milliseconds{1000});
 	}
 }
 
@@ -324,6 +305,16 @@ void lwip::NetifWrapper::Dispose()
 		_unsubscribe_token->Unsubscribe();
 	}
 
+	if (_connection_event_unsubscribe_token != nullptr)
+	{
+		_connection_event_unsubscribe_token->Unsubscribe();
+	}
+
+	if (_disconnection_event_unsubscribe_token != nullptr)
+	{
+		_disconnection_event_unsubscribe_token->Unsubscribe();
+	}
+
 	_link_state_detecting_thread_func_exited->Acquire();
 	netif_remove(_wrapped_obj.get());
 }
@@ -351,7 +342,7 @@ void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,
 
 	if (_ethernet_port == nullptr)
 	{
-		throw std::runtime_error{"必须先调用 Open 方法传入一个 bsp::IEthernetPort 对象"};
+		throw std::invalid_argument{CODE_POS_STR + "ethernet_port 不能是空指针。"};
 	}
 
 	_ethernet_port->Open(_cache->_mac);
@@ -403,18 +394,49 @@ void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,
 		{
 			LinkStateDetectingThreadFunc();
 		},
-		512);
+		256);
 
-	if (_unsubscribe_token != nullptr)
 	{
-		_unsubscribe_token->Unsubscribe();
+		if (_unsubscribe_token != nullptr)
+		{
+			_unsubscribe_token->Unsubscribe();
+		}
+
+		_unsubscribe_token = _ethernet_port->ReceivintEhternetFrameEvent().Subscribe(
+			[this](base::ReadOnlySpan span)
+			{
+				OnInput(span);
+			});
 	}
 
-	_unsubscribe_token = _ethernet_port->ReceivintEhternetFrameEvent().Subscribe(
-		[this](base::ReadOnlySpan span)
+	{
+		if (_connection_event_unsubscribe_token != nullptr)
 		{
-			OnInput(span);
-		});
+			_connection_event_unsubscribe_token->Unsubscribe();
+		}
+
+		_connection_event_unsubscribe_token = _ethernet_port->ConnectionEvent().Subscribe(
+			[this]()
+			{
+				// 开启以太网及虚拟网卡
+				DI_Console().WriteLine("检测到网线插入");
+				_link_controller->SetUpLink();
+			});
+	}
+
+	{
+		if (_disconnection_event_unsubscribe_token != nullptr)
+		{
+			_disconnection_event_unsubscribe_token->Unsubscribe();
+		}
+
+		_disconnection_event_unsubscribe_token = _ethernet_port->DisconnectionEvent().Subscribe(
+			[this]()
+			{
+				DI_Console().WriteLine("检测到网线断开。");
+				_link_controller->SetDownLink();
+			});
+	}
 }
 
 #pragma region 地址

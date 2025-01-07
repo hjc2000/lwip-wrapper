@@ -26,6 +26,8 @@ namespace lwip
 		std::string _name;
 		std::shared_ptr<bsp::IBinarySemaphore> _link_state_detecting_thread_func_exited = DICreate_BinarySemaphore();
 		std::shared_ptr<base::IUnsubscribeToken> _unsubscribe_token;
+		std::shared_ptr<base::IUnsubscribeToken> _connection_event_unsubscribe_token;
+		std::shared_ptr<base::IUnsubscribeToken> _disconnection_event_unsubscribe_token;
 
 		class LinkController;
 		std::shared_ptr<LinkController> _link_controller = nullptr;

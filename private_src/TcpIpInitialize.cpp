@@ -11,10 +11,7 @@ void lwip::TcpIpInitialize()
 		return;
 	}
 
-	DI_DoGlobalCriticalWork(
-		[]
-		{
-			_tcp_ip_has_been_initialized = true;
-			tcpip_init(nullptr, nullptr);
-		});
+	bsp::GlobalInterruptGuard g;
+	_tcp_ip_has_been_initialized = true;
+	tcpip_init(nullptr, nullptr);
 }

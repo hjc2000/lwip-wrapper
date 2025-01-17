@@ -170,7 +170,7 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 	{
 		if (_disposed)
 		{
-			DI_Console().WriteLine("LinkStateDetectingThreadFunc 退出");
+			bsp::di::Console().WriteLine("LinkStateDetectingThreadFunc 退出");
 			_link_state_detecting_thread_func_exited->Release();
 			return;
 		}
@@ -186,10 +186,10 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 				_cache->_ip_address = IPAddress();
 				_cache->_netmask = Netmask();
 				_cache->_gateway = Gateway();
-				DI_Console().WriteLine("DHCP 成功：");
-				DI_Console().WriteLine("通过 DHCP 获取到 IP 地址：" + _cache->_ip_address.ToString());
-				DI_Console().WriteLine("通过 DHCP 获取到子网掩码：" + _cache->_netmask.ToString());
-				DI_Console().WriteLine("通过 DHCP 获取到的默认网关：" + _cache->_gateway.ToString());
+				bsp::di::Console().WriteLine("DHCP 成功：");
+				bsp::di::Console().WriteLine("通过 DHCP 获取到 IP 地址：" + _cache->_ip_address.ToString());
+				bsp::di::Console().WriteLine("通过 DHCP 获取到子网掩码：" + _cache->_netmask.ToString());
+				bsp::di::Console().WriteLine("通过 DHCP 获取到的默认网关：" + _cache->_gateway.ToString());
 			}
 
 			dhcp_supplied_address_in_last_loop = dhcp_supplied_address;
@@ -232,7 +232,7 @@ void lwip::NetifWrapper::TryDHCP()
 		return;
 	}
 
-	DI_Console().WriteLine("开始进行 DHCP.");
+	bsp::di::Console().WriteLine("开始进行 DHCP.");
 	_link_controller->StartDHCP();
 
 	bool dhcp_result = false;
@@ -254,10 +254,10 @@ void lwip::NetifWrapper::TryDHCP()
 		SetIPAddress(_cache->_ip_address);
 		SetNetmask(_cache->_netmask);
 		SetGateway(_cache->_gateway);
-		DI_Console().WriteLine("DHCP 超时：");
-		DI_Console().WriteLine("使用静态 IP 地址：" + IPAddress().ToString());
-		DI_Console().WriteLine("使用静态子网掩码：" + Netmask().ToString());
-		DI_Console().WriteLine("使用静态网关：" + Gateway().ToString());
+		bsp::di::Console().WriteLine("DHCP 超时：");
+		bsp::di::Console().WriteLine("使用静态 IP 地址：" + IPAddress().ToString());
+		bsp::di::Console().WriteLine("使用静态子网掩码：" + Netmask().ToString());
+		bsp::di::Console().WriteLine("使用静态网关：" + Gateway().ToString());
 		return;
 	}
 
@@ -265,10 +265,10 @@ void lwip::NetifWrapper::TryDHCP()
 	_cache->_ip_address = IPAddress();
 	_cache->_netmask = Netmask();
 	_cache->_gateway = Gateway();
-	DI_Console().WriteLine("DHCP 成功：");
-	DI_Console().WriteLine("通过 DHCP 获取到 IP 地址：" + _cache->_ip_address.ToString());
-	DI_Console().WriteLine("通过 DHCP 获取到子网掩码：" + _cache->_netmask.ToString());
-	DI_Console().WriteLine("通过 DHCP 获取到的默认网关：" + _cache->_gateway.ToString());
+	bsp::di::Console().WriteLine("DHCP 成功：");
+	bsp::di::Console().WriteLine("通过 DHCP 获取到 IP 地址：" + _cache->_ip_address.ToString());
+	bsp::di::Console().WriteLine("通过 DHCP 获取到子网掩码：" + _cache->_netmask.ToString());
+	bsp::di::Console().WriteLine("通过 DHCP 获取到的默认网关：" + _cache->_gateway.ToString());
 }
 
 void lwip::NetifWrapper::SubscribeEvents()
@@ -296,7 +296,7 @@ void lwip::NetifWrapper::SubscribeEvents()
 			[this]()
 			{
 				// 开启以太网及虚拟网卡
-				DI_Console().WriteLine("检测到网线插入");
+				bsp::di::Console().WriteLine("检测到网线插入");
 				_link_controller->SetUpLink();
 			});
 	}
@@ -310,7 +310,7 @@ void lwip::NetifWrapper::SubscribeEvents()
 		_disconnection_event_unsubscribe_token = _ethernet_port->DisconnectionEvent().Subscribe(
 			[this]()
 			{
-				DI_Console().WriteLine("检测到网线断开。");
+				bsp::di::Console().WriteLine("检测到网线断开。");
 				_link_controller->SetDownLink();
 			});
 	}
@@ -406,7 +406,7 @@ void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,
 		}
 		catch (std::exception const &e)
 		{
-			DI_Console().WriteLine(e.what());
+			bsp::di::Console().WriteLine(e.what());
 			return err_enum_t::ERR_IF;
 		}
 	};

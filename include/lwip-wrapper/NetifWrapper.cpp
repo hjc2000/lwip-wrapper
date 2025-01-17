@@ -434,11 +434,11 @@ void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,
 	}
 
 	// 链接状态更新
-	DI_CreateTask(256,
-				  [this]()
-				  {
-					  LinkStateDetectingThreadFunc();
-				  });
+	bsp::di::task::CreateTask(256,
+							  [this]()
+							  {
+								  LinkStateDetectingThreadFunc();
+							  });
 
 	SubscribeEvents();
 }

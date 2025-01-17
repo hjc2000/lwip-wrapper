@@ -24,7 +24,7 @@ namespace lwip
 		std::unique_ptr<netif> _wrapped_obj{new netif{}};
 		bsp::IEthernetPort *_ethernet_port = nullptr;
 		std::string _name;
-		std::shared_ptr<bsp::IBinarySemaphore> _link_state_detecting_thread_func_exited = DICreate_BinarySemaphore();
+		std::shared_ptr<bsp::IBinarySemaphore> _link_state_detecting_thread_func_exited = bsp::di::task::CreateBinarySemaphore();
 		std::shared_ptr<base::IUnsubscribeToken> _receiving_event_unsubscribe_token;
 		std::shared_ptr<base::IUnsubscribeToken> _connection_event_unsubscribe_token;
 		std::shared_ptr<base::IUnsubscribeToken> _disconnection_event_unsubscribe_token;

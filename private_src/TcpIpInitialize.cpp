@@ -1,4 +1,5 @@
 #include "TcpIpInitialize.h"
+#include <bsp-interface/di/interrupt.h>
 #include <bsp-interface/di/task.h>
 #include <lwip/tcpip.h>
 
@@ -11,7 +12,7 @@ void lwip::TcpIpInitialize()
 		return;
 	}
 
-	bsp::di::task::TaskGuard g;
+	bsp::di::interrupt::GlobalInterruptGuard g;
 	_tcp_ip_has_been_initialized = true;
 	tcpip_init(nullptr, nullptr);
 }

@@ -1,5 +1,5 @@
 #include "TcpIpInitialize.h"
-#include <bsp-interface/di/interrupt.h>
+#include <bsp-interface/di/task.h>
 #include <lwip/tcpip.h>
 
 bool volatile _tcp_ip_has_been_initialized = false;
@@ -11,7 +11,7 @@ void lwip::TcpIpInitialize()
 		return;
 	}
 
-	bsp::GlobalInterruptGuard g;
+	bsp::di::task::TaskGuard g;
 	_tcp_ip_has_been_initialized = true;
 	tcpip_init(nullptr, nullptr);
 }

@@ -1,46 +1,43 @@
 #include "lwip_convert.h"
 #include <base/string/define.h>
 
-ip_addr_t base::To_ip_addr_t(base::IPAddress const &o)
+ip_addr_t &base::operator<<(ip_addr_t &out, base::IPAddress const &in)
 {
 	try
 	{
-		ip_addr_t ip{};
-
 		base::Span span{
-			reinterpret_cast<uint8_t *>(&ip.addr),
-			sizeof(ip.addr),
+			reinterpret_cast<uint8_t *>(&out.addr),
+			sizeof(out.addr),
 		};
 
-		span.CopyFrom(o.AsReadOnlySpan());
+		span.CopyFrom(in.AsReadOnlySpan());
 
 		/* base::IPAddress 类用小端序储存 IP 地址，而 lwip 的 ip_addr.addr
 		 * 是用大端序，所以要翻转。
 		 */
 		span.Reverse();
-		return ip;
+		return out;
 	}
 	catch (std::exception const &e)
 	{
-		std::string message = std::string{CODE_POS_STR};
-		throw std::runtime_error{message + e.what()};
+		throw std::runtime_error{CODE_POS_STR + e.what()};
 	}
 }
 
-base::IPAddress base::ToIPAddress(ip_addr_t const &o)
+base::IPAddress &base::operator<<(base::IPAddress &out, ip_addr_t const &in)
 {
 	try
 	{
 		base::ReadOnlySpan span{
-			reinterpret_cast<uint8_t const *>(&o.addr),
-			sizeof(o.addr),
+			reinterpret_cast<uint8_t const *>(&in.addr),
+			sizeof(in.addr),
 		};
 
-		return base::IPAddress{std::endian::big, span};
+		out = base::IPAddress{std::endian::big, span};
+		return out;
 	}
 	catch (std::exception const &e)
 	{
-		std::string message = std::string{CODE_POS_STR};
-		throw std::runtime_error{message + e.what()};
+		throw std::runtime_error{CODE_POS_STR + e.what()};
 	}
 }

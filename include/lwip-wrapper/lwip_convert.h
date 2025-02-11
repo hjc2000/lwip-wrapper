@@ -4,7 +4,7 @@
 
 namespace base
 {
-	ip_addr_t To_ip_addr_t(base::IPAddress const &o);
+	ip_addr_t &operator<<(ip_addr_t &out, base::IPAddress const &in);
 
-	base::IPAddress ToIPAddress(ip_addr_t const &o);
+	base::IPAddress &operator<<(base::IPAddress &out, ip_addr_t const &in);
 } // namespace base

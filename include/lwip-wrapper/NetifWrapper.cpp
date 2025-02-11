@@ -393,9 +393,9 @@ void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,
 	_ethernet_port->Open(_cache->_mac);
 	TcpIpInitialize();
 
-	ip_addr_t ip_addr_t_ip_address = base::Convert<ip_addr_t, base::IPAddress>(_cache->_ip_address);
-	ip_addr_t ip_addr_t_netmask = base::Convert<ip_addr_t, base::IPAddress>(_cache->_netmask);
-	ip_addr_t ip_addr_t_gataway = base::Convert<ip_addr_t, base::IPAddress>(_cache->_gateway);
+	ip_addr_t ip_addr_t_ip_address = To_ip_addr_t(_cache->_ip_address);
+	ip_addr_t ip_addr_t_netmask = To_ip_addr_t(_cache->_netmask);
+	ip_addr_t ip_addr_t_gataway = To_ip_addr_t(_cache->_gateway);
 
 	auto initialization_callback = [](netif *p) -> err_t
 	{
@@ -465,12 +465,12 @@ void lwip::NetifWrapper::SetMac(base::Mac const &o)
 
 base::IPAddress lwip::NetifWrapper::IPAddress() const
 {
-	return base::Convert<base::IPAddress, ip_addr_t>(_wrapped_obj->ip_addr);
+	return base::ToIPAddress(_wrapped_obj->ip_addr);
 }
 
 void lwip::NetifWrapper::SetIPAddress(base::IPAddress const &value)
 {
-	_wrapped_obj->ip_addr = base::Convert<ip_addr_t, base::IPAddress>(value);
+	_wrapped_obj->ip_addr = To_ip_addr_t(value);
 
 	netif_set_addr(_wrapped_obj.get(),
 				   &_wrapped_obj->ip_addr,
@@ -480,12 +480,12 @@ void lwip::NetifWrapper::SetIPAddress(base::IPAddress const &value)
 
 base::IPAddress lwip::NetifWrapper::Netmask() const
 {
-	return base::Convert<base::IPAddress, ip_addr_t>(_wrapped_obj->netmask);
+	return base::ToIPAddress(_wrapped_obj->netmask);
 }
 
 void lwip::NetifWrapper::SetNetmask(base::IPAddress const &value)
 {
-	_wrapped_obj->netmask = base::Convert<ip_addr_t, base::IPAddress>(value);
+	_wrapped_obj->netmask = To_ip_addr_t(value);
 
 	netif_set_addr(_wrapped_obj.get(),
 				   &_wrapped_obj->ip_addr,
@@ -495,12 +495,12 @@ void lwip::NetifWrapper::SetNetmask(base::IPAddress const &value)
 
 base::IPAddress lwip::NetifWrapper::Gateway() const
 {
-	return base::Convert<base::IPAddress, ip_addr_t>(_wrapped_obj->gw);
+	return base::ToIPAddress(_wrapped_obj->gw);
 }
 
 void lwip::NetifWrapper::SetGateway(base::IPAddress const &value)
 {
-	_wrapped_obj->gw = base::Convert<ip_addr_t, base::IPAddress>(value);
+	_wrapped_obj->gw = To_ip_addr_t(value);
 
 	netif_set_addr(_wrapped_obj.get(),
 				   &_wrapped_obj->ip_addr,
@@ -512,9 +512,9 @@ void lwip::NetifWrapper::SetAllAddress(base::IPAddress const &ip_address,
 									   base::IPAddress const &netmask,
 									   base::IPAddress const &gateway)
 {
-	_wrapped_obj->ip_addr = base::Convert<ip_addr_t, base::IPAddress>(ip_address);
-	_wrapped_obj->netmask = base::Convert<ip_addr_t, base::IPAddress>(netmask);
-	_wrapped_obj->gw = base::Convert<ip_addr_t, base::IPAddress>(gateway);
+	_wrapped_obj->ip_addr = To_ip_addr_t(ip_address);
+	_wrapped_obj->netmask = To_ip_addr_t(netmask);
+	_wrapped_obj->gw = To_ip_addr_t(gateway);
 
 	netif_set_addr(_wrapped_obj.get(),
 				   &_wrapped_obj->ip_addr,

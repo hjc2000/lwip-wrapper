@@ -1,8 +1,7 @@
 #include "lwip_convert.h"
 #include <base/string/define.h>
 
-template <>
-ip_addr_t base::Convert(base::IPAddress const &o)
+ip_addr_t base::To_ip_addr_t(base::IPAddress const &o)
 {
 	try
 	{
@@ -28,8 +27,7 @@ ip_addr_t base::Convert(base::IPAddress const &o)
 	}
 }
 
-template <>
-base::IPAddress base::Convert(ip_addr_t const &o)
+base::IPAddress base::ToIPAddress(ip_addr_t const &o)
 {
 	try
 	{

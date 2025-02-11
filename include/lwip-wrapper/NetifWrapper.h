@@ -1,6 +1,5 @@
 #pragma once
 #include <atomic>
-#include <base/Convert.h>
 #include <base/IDisposable.h>
 #include <base/net/IPAddress.h>
 #include <base/net/Mac.h>

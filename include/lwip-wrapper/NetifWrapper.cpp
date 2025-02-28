@@ -276,7 +276,7 @@ void lwip::NetifWrapper::SubscribeEvents()
 	{
 		if (_receiving_event_unsubscribe_token != nullptr)
 		{
-			_receiving_event_unsubscribe_token->Unsubscribe();
+			_ethernet_port->ReceivingEhternetFrameEvent().Unsubscribe(_receiving_event_unsubscribe_token);
 		}
 
 		_receiving_event_unsubscribe_token = _ethernet_port->ReceivingEhternetFrameEvent().Subscribe(
@@ -289,7 +289,7 @@ void lwip::NetifWrapper::SubscribeEvents()
 	{
 		if (_connection_event_unsubscribe_token != nullptr)
 		{
-			_connection_event_unsubscribe_token->Unsubscribe();
+			_ethernet_port->ConnectionEvent().Unsubscribe(_connection_event_unsubscribe_token);
 		}
 
 		_connection_event_unsubscribe_token = _ethernet_port->ConnectionEvent().Subscribe(
@@ -304,7 +304,7 @@ void lwip::NetifWrapper::SubscribeEvents()
 	{
 		if (_disconnection_event_unsubscribe_token != nullptr)
 		{
-			_disconnection_event_unsubscribe_token->Unsubscribe();
+			_ethernet_port->DisconnectionEvent().Unsubscribe(_disconnection_event_unsubscribe_token);
 		}
 
 		_disconnection_event_unsubscribe_token = _ethernet_port->DisconnectionEvent().Subscribe(
@@ -347,17 +347,17 @@ void lwip::NetifWrapper::Dispose()
 
 	if (_receiving_event_unsubscribe_token != nullptr)
 	{
-		_receiving_event_unsubscribe_token->Unsubscribe();
+		_ethernet_port->ReceivingEhternetFrameEvent().Unsubscribe(_receiving_event_unsubscribe_token);
 	}
 
 	if (_connection_event_unsubscribe_token != nullptr)
 	{
-		_connection_event_unsubscribe_token->Unsubscribe();
+		_ethernet_port->ConnectionEvent().Unsubscribe(_connection_event_unsubscribe_token);
 	}
 
 	if (_disconnection_event_unsubscribe_token != nullptr)
 	{
-		_disconnection_event_unsubscribe_token->Unsubscribe();
+		_ethernet_port->DisconnectionEvent().Unsubscribe(_disconnection_event_unsubscribe_token);
 	}
 
 	_link_state_detecting_thread_func_exited->Acquire();

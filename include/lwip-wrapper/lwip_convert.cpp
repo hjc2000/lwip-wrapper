@@ -10,7 +10,7 @@ ip_addr_t &base::operator<<(ip_addr_t &out, base::IPAddress const &in)
 			sizeof(out.addr),
 		};
 
-		span.CopyFrom(in.AsReadOnlySpan());
+		span.CopyFrom(in.Span());
 
 		/* base::IPAddress 类用小端序储存 IP 地址，而 lwip 的 ip_addr.addr
 		 * 是用大端序，所以要翻转。

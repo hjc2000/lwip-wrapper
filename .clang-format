@@ -29,7 +29,7 @@ AllowShortLambdasOnASingleLine: None
 SortIncludes: CaseInsensitive
 
 PackConstructorInitializers: Never
-IndentPPDirectives: None
+IndentPPDirectives: BeforeHash
 
 # 指针右对齐
 PointerAlignment: Right

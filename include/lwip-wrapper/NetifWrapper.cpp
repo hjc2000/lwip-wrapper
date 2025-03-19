@@ -464,7 +464,7 @@ base::Mac lwip::NetifWrapper::Mac() const
 void lwip::NetifWrapper::SetMac(base::Mac const &o)
 {
 	base::Span netif_mac_buff_span{_wrapped_obj->hwaddr, 6};
-	netif_mac_buff_span.CopyFrom(o.AsReadOnlySpan());
+	netif_mac_buff_span.CopyFrom(o.Span());
 	netif_mac_buff_span.Reverse();
 }
 

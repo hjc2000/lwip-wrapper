@@ -1,8 +1,8 @@
 #include "NetifWrapper.h"
 #include "base/container/List.h"
 #include "base/string/define.h"
+#include "base/task/delay.h"
 #include "bsp-interface/di/console.h"
-#include "bsp-interface/di/delayer.h"
 #include "bsp-interface/di/task.h"
 #include "lwip-wrapper/lwip_convert.h"
 #include "lwip/dhcp.h"
@@ -195,7 +195,7 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 		}
 
 		// 延时。检测链路状态不需要那么快。
-		bsp::di::Delayer().Delay(std::chrono::milliseconds{1000});
+		base::Delay(std::chrono::milliseconds{1000});
 	}
 }
 
@@ -244,7 +244,7 @@ void lwip::NetifWrapper::TryDHCP()
 			break;
 		}
 
-		bsp::di::Delayer().Delay(std::chrono::milliseconds{100});
+		base::Delay(std::chrono::milliseconds{100});
 	}
 
 	if (!dhcp_result)

@@ -1,13 +1,12 @@
 #pragma once
-#include "base/delegate/IEvent.h"
+#include "base/IDisposable.h"
+#include "base/net/IPAddress.h"
+#include "base/net/Mac.h"
+#include "base/task/IBinarySemaphore.h"
+#include "base/Wrapper.h"
+#include "bsp-interface/ethernet/IEthernetPort.h"
+#include "lwip/netif.h"
 #include <atomic>
-#include <base/IDisposable.h>
-#include <base/net/IPAddress.h>
-#include <base/net/Mac.h>
-#include <base/Wrapper.h>
-#include <bsp-interface/di/task.h>
-#include <bsp-interface/ethernet/IEthernetPort.h>
-#include <lwip/netif.h>
 #include <memory>
 
 namespace lwip
@@ -24,8 +23,7 @@ namespace lwip
 		std::unique_ptr<netif> _wrapped_obj{new netif{}};
 		bsp::IEthernetPort *_ethernet_port = nullptr;
 		std::string _name;
-		std::shared_ptr<bsp::IBinarySemaphore> _link_state_detecting_thread_func_exited = bsp::di::task::CreateBinarySemaphore();
-
+		std::shared_ptr<base::IBinarySemaphore> _link_state_detecting_thread_func_exited = base::CreateIBinarySemaphore(false);
 		std::shared_ptr<base::IIdToken> _receiving_event_unsubscribe_token;
 		std::shared_ptr<base::IIdToken> _connection_event_unsubscribe_token;
 		std::shared_ptr<base::IIdToken> _disconnection_event_unsubscribe_token;

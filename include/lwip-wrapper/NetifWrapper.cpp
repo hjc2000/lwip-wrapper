@@ -1,15 +1,14 @@
 #include "NetifWrapper.h"
-#include <base/container/List.h>
-#include <base/string/define.h>
-#include <bsp-interface/di/console.h>
-#include <bsp-interface/di/delayer.h>
-#include <bsp-interface/di/task.h>
-#include <lwip-wrapper/lwip_convert.h>
-#include <lwip-wrapper/NetifSlot.h>
-#include <lwip/dhcp.h>
-#include <lwip/etharp.h>
-#include <lwip/tcpip.h>
-#include <TcpIpInitialize.h>
+#include "base/container/List.h"
+#include "base/string/define.h"
+#include "bsp-interface/di/console.h"
+#include "bsp-interface/di/delayer.h"
+#include "bsp-interface/di/task.h"
+#include "lwip-wrapper/lwip_convert.h"
+#include "lwip/dhcp.h"
+#include "lwip/etharp.h"
+#include "lwip/tcpip.h"
+#include "TcpIpInitialize.h"
 
 class lwip::NetifWrapper::LinkController
 {

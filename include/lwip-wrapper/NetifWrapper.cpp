@@ -195,7 +195,7 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 		}
 
 		// 延时。检测链路状态不需要那么快。
-		base::Delay(std::chrono::milliseconds{1000});
+		base::task::Delay(std::chrono::milliseconds{1000});
 	}
 }
 
@@ -244,7 +244,7 @@ void lwip::NetifWrapper::TryDHCP()
 			break;
 		}
 
-		base::Delay(std::chrono::milliseconds{100});
+		base::task::Delay(std::chrono::milliseconds{100});
 	}
 
 	if (!dhcp_result)

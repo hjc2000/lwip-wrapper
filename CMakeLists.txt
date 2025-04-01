@@ -12,11 +12,6 @@ if(1)
 	set(CMAKE_C_STANDARD 17)
 endif()
 
-
-include(target_import_lwip)
-include(target_import_bsp_interface)
-
-
 add_library(${ProjectName})
 target_import_src(${ProjectName})
 target_import_lwip(${ProjectName} PUBLIC)

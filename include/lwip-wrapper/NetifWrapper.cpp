@@ -438,7 +438,7 @@ void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,
 	}
 
 	// 链接状态更新
-	bsp::di::task::CreateTask(256,
+	bsp::di::task::CreateTask(512,
 							  [this]()
 							  {
 								  LinkStateDetectingThreadFunc();

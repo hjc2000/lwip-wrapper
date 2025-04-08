@@ -1,22 +1,14 @@
 #include "NetifSlot.h"
+#include "base/define.h"
 #include <base/string/define.h>
 #include <bsp-interface/di/interrupt.h>
-#include <bsp-interface/TaskSingletonGetter.h>
+
+PREINIT(lwip::NetifSlot::Instance)
 
 lwip::NetifSlot &lwip::NetifSlot::Instance()
 {
-	class Getter :
-		public bsp::TaskSingletonGetter<NetifSlot>
-	{
-	public:
-		std::unique_ptr<NetifSlot> Create() override
-		{
-			return std::unique_ptr<NetifSlot>{new NetifSlot{}};
-		}
-	};
-
-	Getter g;
-	return g.Instance();
+	static NetifSlot o{};
+	return o;
 }
 
 void lwip::NetifSlot::PlugIn(std::shared_ptr<lwip::NetifWrapper> const &o)

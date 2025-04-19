@@ -9,6 +9,7 @@
 #include "lwip/etharp.h"
 #include "lwip/tcpip.h"
 #include "TcpIpInitialize.h"
+#include <vector>
 
 class lwip::NetifWrapper::LinkController
 {
@@ -147,7 +148,7 @@ void lwip::NetifWrapper::SendPbuf(pbuf *p)
 	}
 
 	pbuf *current_pbuf;
-	base::List<base::ReadOnlySpan> spans{};
+	std::vector<base::ReadOnlySpan> spans{};
 
 	for (current_pbuf = p; current_pbuf != nullptr; current_pbuf = current_pbuf->next)
 	{
@@ -156,7 +157,7 @@ void lwip::NetifWrapper::SendPbuf(pbuf *p)
 			current_pbuf->len,
 		};
 
-		spans.Add(span);
+		spans.push_back(span);
 	}
 
 	_ethernet_port->Send(spans);

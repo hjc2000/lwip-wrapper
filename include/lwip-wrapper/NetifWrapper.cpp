@@ -148,8 +148,7 @@ void lwip::NetifWrapper::SendPbuf(pbuf *p)
 	}
 
 	pbuf *current_pbuf;
-	std::vector<base::ReadOnlySpan> spans{};
-
+	_sending_spans.clear();
 	for (current_pbuf = p; current_pbuf != nullptr; current_pbuf = current_pbuf->next)
 	{
 		base::ReadOnlySpan span{
@@ -157,10 +156,10 @@ void lwip::NetifWrapper::SendPbuf(pbuf *p)
 			current_pbuf->len,
 		};
 
-		spans.push_back(span);
+		_sending_spans.push_back(span);
 	}
 
-	_ethernet_port->Send(spans);
+	_ethernet_port->Send(_sending_spans);
 }
 
 void lwip::NetifWrapper::LinkStateDetectingThreadFunc()

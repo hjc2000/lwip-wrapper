@@ -27,6 +27,7 @@ namespace lwip
 		std::shared_ptr<base::IIdToken> _receiving_event_unsubscribe_token;
 		std::shared_ptr<base::IIdToken> _connection_event_unsubscribe_token;
 		std::shared_ptr<base::IIdToken> _disconnection_event_unsubscribe_token;
+		std::vector<base::ReadOnlySpan> _sending_spans{};
 
 		class LinkController;
 		std::shared_ptr<LinkController> _link_controller = nullptr;

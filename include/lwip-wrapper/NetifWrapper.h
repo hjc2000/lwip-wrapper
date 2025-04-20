@@ -9,7 +9,6 @@
 #include <atomic>
 #include <memory>
 
-
 namespace lwip
 {
 	/// @brief lwip 的 netif 的包装器。

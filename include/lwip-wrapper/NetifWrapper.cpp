@@ -1,5 +1,4 @@
 #include "NetifWrapper.h"
-#include "base/container/List.h"
 #include "base/string/define.h"
 #include "base/task/delay.h"
 #include "bsp-interface/di/console.h"
@@ -370,7 +369,7 @@ std::string lwip::NetifWrapper::Name() const
 	return _name;
 }
 
-void lwip::NetifWrapper::Open(bsp::IEthernetPort *ethernet_port,
+void lwip::NetifWrapper::Open(base::ethernet::IEthernetPort *ethernet_port,
 							  base::Mac const &mac,
 							  base::IPAddress const &ip_address,
 							  base::IPAddress const &netmask,

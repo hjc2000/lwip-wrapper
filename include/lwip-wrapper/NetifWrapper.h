@@ -2,9 +2,9 @@
 #include "base/IDisposable.h"
 #include "base/net/IPAddress.h"
 #include "base/net/Mac.h"
+#include "base/peripheral/ethernet/IEthernetPort.h"
 #include "base/task/IBinarySemaphore.h"
 #include "base/Wrapper.h"
-#include "bsp-interface/ethernet/IEthernetPort.h"
 #include "lwip/netif.h"
 #include <atomic>
 #include <memory>
@@ -21,7 +21,7 @@ namespace lwip
 		std::atomic_bool _disposed = false;
 		std::atomic_bool _dhcp_enabled = false;
 		std::unique_ptr<netif> _wrapped_obj{new netif{}};
-		bsp::IEthernetPort *_ethernet_port = nullptr;
+		base::ethernet::IEthernetPort *_ethernet_port = nullptr;
 		std::string _name;
 		std::shared_ptr<base::IBinarySemaphore> _link_state_detecting_thread_func_exited = base::CreateIBinarySemaphore(false);
 		std::shared_ptr<base::IIdToken> _receiving_event_unsubscribe_token;
@@ -71,7 +71,7 @@ namespace lwip
 		/// @param netmask
 		/// @param gateway
 		/// @param mtu
-		void Open(bsp::IEthernetPort *ethernet_port,
+		void Open(base::ethernet::IEthernetPort *ethernet_port,
 				  base::Mac const &mac,
 				  base::IPAddress const &ip_address,
 				  base::IPAddress const &netmask,

@@ -3,11 +3,12 @@
 #include "base/net/IPAddress.h"
 #include "base/net/Mac.h"
 #include "base/peripheral/ethernet/IEthernetPort.h"
-#include "base/task/IBinarySemaphore.h"
+#include "base/task/BinarySemaphore.h"
 #include "base/Wrapper.h"
 #include "lwip/netif.h"
 #include <atomic>
 #include <memory>
+
 
 namespace lwip
 {
@@ -23,7 +24,7 @@ namespace lwip
 		std::unique_ptr<netif> _wrapped_obj{new netif{}};
 		base::ethernet::IEthernetPort *_ethernet_port = nullptr;
 		std::string _name;
-		std::shared_ptr<base::IBinarySemaphore> _link_state_detecting_thread_func_exited = base::CreateIBinarySemaphore(false);
+		base::task::BinarySemaphore _link_state_detecting_thread_func_exited{false};
 		std::shared_ptr<base::IIdToken> _receiving_event_unsubscribe_token;
 		std::shared_ptr<base::IIdToken> _connection_event_unsubscribe_token;
 		std::shared_ptr<base::IIdToken> _disconnection_event_unsubscribe_token;

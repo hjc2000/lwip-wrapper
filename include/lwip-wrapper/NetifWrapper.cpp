@@ -169,7 +169,7 @@ void lwip::NetifWrapper::LinkStateDetectingThreadFunc()
 		if (_disposed)
 		{
 			bsp::di::Console().WriteLine("LinkStateDetectingThreadFunc 退出");
-			_link_state_detecting_thread_func_exited->Release();
+			_link_state_detecting_thread_func_exited.Release();
 			return;
 		}
 
@@ -358,7 +358,7 @@ void lwip::NetifWrapper::Dispose()
 		_ethernet_port->DisconnectedEvent().Unsubscribe(_disconnection_event_unsubscribe_token);
 	}
 
-	_link_state_detecting_thread_func_exited->Acquire();
+	_link_state_detecting_thread_func_exited.Acquire();
 	netif_remove(_wrapped_obj.get());
 }
 

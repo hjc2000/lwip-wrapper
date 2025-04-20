@@ -288,10 +288,10 @@ void lwip::NetifWrapper::SubscribeEvents()
 	{
 		if (_connection_event_unsubscribe_token != nullptr)
 		{
-			_ethernet_port->ConnectionEvent().Unsubscribe(_connection_event_unsubscribe_token);
+			_ethernet_port->ConnectedEvent().Unsubscribe(_connection_event_unsubscribe_token);
 		}
 
-		_connection_event_unsubscribe_token = _ethernet_port->ConnectionEvent().Subscribe(
+		_connection_event_unsubscribe_token = _ethernet_port->ConnectedEvent().Subscribe(
 			[this]()
 			{
 				// 开启以太网及虚拟网卡
@@ -303,10 +303,10 @@ void lwip::NetifWrapper::SubscribeEvents()
 	{
 		if (_disconnection_event_unsubscribe_token != nullptr)
 		{
-			_ethernet_port->DisconnectionEvent().Unsubscribe(_disconnection_event_unsubscribe_token);
+			_ethernet_port->DisconnectedEvent().Unsubscribe(_disconnection_event_unsubscribe_token);
 		}
 
-		_disconnection_event_unsubscribe_token = _ethernet_port->DisconnectionEvent().Subscribe(
+		_disconnection_event_unsubscribe_token = _ethernet_port->DisconnectedEvent().Subscribe(
 			[this]()
 			{
 				bsp::di::Console().WriteLine("检测到网线断开。");
@@ -351,12 +351,12 @@ void lwip::NetifWrapper::Dispose()
 
 	if (_connection_event_unsubscribe_token != nullptr)
 	{
-		_ethernet_port->ConnectionEvent().Unsubscribe(_connection_event_unsubscribe_token);
+		_ethernet_port->ConnectedEvent().Unsubscribe(_connection_event_unsubscribe_token);
 	}
 
 	if (_disconnection_event_unsubscribe_token != nullptr)
 	{
-		_ethernet_port->DisconnectionEvent().Unsubscribe(_disconnection_event_unsubscribe_token);
+		_ethernet_port->DisconnectedEvent().Unsubscribe(_disconnection_event_unsubscribe_token);
 	}
 
 	_link_state_detecting_thread_func_exited->Acquire();

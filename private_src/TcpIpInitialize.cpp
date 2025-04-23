@@ -1,6 +1,5 @@
 #include "TcpIpInitialize.h"
 #include <bsp-interface/di/interrupt.h>
-#include <bsp-interface/di/task.h>
 #include <lwip/tcpip.h>
 
 bool volatile _tcp_ip_has_been_initialized = false;

@@ -2,7 +2,7 @@
 #include "base/Console.h"
 #include "base/string/define.h"
 #include "base/task/delay.h"
-#include "bsp-interface/di/task.h"
+#include "base/task/task.h"
 #include "lwip-wrapper/lwip_convert.h"
 #include "lwip/dhcp.h"
 #include "lwip/etharp.h"
@@ -437,11 +437,13 @@ void lwip::NetifWrapper::Open(base::ethernet::IEthernetPort *ethernet_port,
 	}
 
 	// 链接状态更新
-	bsp::di::task::CreateTask(512,
-							  [this]()
-							  {
-								  LinkStateDetectingThreadFunc();
-							  });
+	base::task::run("",
+					1,
+					1024 * 4,
+					[this]()
+					{
+						LinkStateDetectingThreadFunc();
+					});
 
 	SubscribeEvents();
 }

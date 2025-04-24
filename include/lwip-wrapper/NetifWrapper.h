@@ -1,8 +1,8 @@
 #pragma once
+#include "base/embedded/ethernet/IEthernetPort.h"
 #include "base/IDisposable.h"
 #include "base/net/IPAddress.h"
 #include "base/net/Mac.h"
-#include "base/peripheral/ethernet/IEthernetPort.h"
 #include "base/task/BinarySemaphore.h"
 #include "base/Wrapper.h"
 #include "lwip/netif.h"

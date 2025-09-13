@@ -1,15 +1,7 @@
 #include "NetifSlot.h"
-#include "base/define.h"
+#include "base/SingletonProvider.h"
 #include <base/string/define.h>
 #include <bsp-interface/di/interrupt.h>
-
-PREINIT(lwip::NetifSlot::Instance)
-
-lwip::NetifSlot &lwip::NetifSlot::Instance()
-{
-	static NetifSlot o{};
-	return o;
-}
 
 void lwip::NetifSlot::PlugIn(std::shared_ptr<lwip::NetifWrapper> const &o)
 {
@@ -50,4 +42,14 @@ std::shared_ptr<lwip::NetifWrapper> lwip::NetifSlot::FindDefaultNetif() const
 	}
 
 	return nullptr;
+}
+
+namespace
+{
+	base::SingletonProvider<lwip::NetifSlot> _provider{};
+}
+
+lwip::NetifSlot &lwip::net_if_slot()
+{
+	return _provider.Instance();
 }

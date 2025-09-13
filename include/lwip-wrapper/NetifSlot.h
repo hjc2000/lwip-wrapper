@@ -12,14 +12,12 @@ namespace lwip
 	class NetifSlot
 	{
 	private:
-		NetifSlot() = default;
-		NetifSlot(NetifSlot const &o) = delete;
-		NetifSlot &operator=(NetifSlot const &o) = delete;
+		DELETE_COPY_AND_MOVE(NetifSlot)
 
 		base::Dictionary<std::string, std::shared_ptr<lwip::NetifWrapper>> _netif_dic;
 
 	public:
-		static_function NetifSlot &Instance();
+		NetifSlot() = default;
 
 		/// @brief 插入一张网卡。
 		/// @param o
@@ -57,4 +55,7 @@ namespace lwip
 		/// @return 找不到会返回空指针。
 		std::shared_ptr<lwip::NetifWrapper> FindDefaultNetif() const;
 	};
+
+	lwip::NetifSlot &net_if_slot();
+
 } // namespace lwip

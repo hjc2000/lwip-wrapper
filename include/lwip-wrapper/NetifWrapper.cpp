@@ -234,9 +234,9 @@ void lwip::NetifWrapper::TryDHCP()
 	_link_controller->StartDHCP();
 
 	bool dhcp_result = false;
-	for (int i = 0; i < 50; i++)
+	for (int i = 0; i < 500; i++)
 	{
-		// 如果失败，最多重试 50 次。
+		// 如果失败，最多重试 500 次。
 		dhcp_result = HasGotAddressesByDHCP();
 		if (dhcp_result)
 		{

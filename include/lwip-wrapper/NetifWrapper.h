@@ -4,7 +4,6 @@
 #include "base/net/IPAddress.h"
 #include "base/net/Mac.h"
 #include "base/task/BinarySemaphore.h"
-#include "base/Wrapper.h"
 #include "lwip/netif.h"
 #include <atomic>
 #include <memory>
@@ -14,7 +13,6 @@ namespace lwip
 	/// @brief lwip 的 netif 的包装器。
 	/// @warning 本类依赖 netif 的 state 字段。使用本类后，禁止修改此字段。
 	class NetifWrapper :
-		public base::Wrapper<netif>,
 		public base::IDisposable
 	{
 	private:
@@ -60,7 +58,7 @@ namespace lwip
 
 		/// @brief 获取被包装对象的指针。
 		/// @return
-		netif *WrappedObj() const override;
+		netif *WrappedObj() const;
 
 		std::string Name() const;
 
